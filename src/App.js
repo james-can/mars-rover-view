@@ -17,12 +17,56 @@ import TextField from '@material-ui/core/TextField';
 import Slider from '@material-ui/lab/Slider';
 import DynamicPreloadedImage from './DynamicPreloadedImage'
 import 'whatwg-fetch';
+import FormHelperText from '@material-ui/core/FormHelperText';
+
+//manifest objects to store useful information about each rover
+const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
+
+const setManifests = (json) => {
+  var roverName = json.photo_manifest.name.toLowerCase();
+  rovers[roverName] = json.photo_manifest;
+
+  var newPhotoArray = [];
+
+  const { photos } = json.photo_manifest;
+
+
+  // since the sols with 0 photos completely omit the element from the array,
+  // re-map the array with placeholder elements with value of 0 to make  
+  // it easier to navigate
+
+  for(let i = photos[0].sol, j = 0; newPhotoArray.length < rovers[roverName].max_sol; i++){
+    newPhotoArray.push(photos[j].sol === i ? photos[j++] : {sol: i , earth_date: '', total_photos: 0 , cameras: []});
+  }
+
+  rovers[roverName].photos = newPhotoArray;
+};
+
+for(let i in rovers){
+  
+  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${i}`;
+  console.log('fetchurl: ' + fetchurl);
+  fetch(fetchurl)
+  .then(function(response) {
+    return response.json()
+  }).then(setManifests).catch(function(ex) {
+    console.log('parsing failed', ex)
+  });
+
+
+}
 
 const styles = (theme) => {
   
   return {
     slider:{
       padding: '22px'
+      
+    },
+    totalSolDisplay:{
+      
+    },
+    solSpinner:{
       
     },
     appBar: {
@@ -37,10 +81,7 @@ const styles = (theme) => {
     heroContent: {
       maxWidth: 600,
       margin: '0 auto',
-      padding: `${theme.spacing.unit * 8}px 0 ${theme.spacing.unit * 6}px`,
-    },
-    heroButtons: {
-      marginTop: theme.spacing.unit * 4,
+      padding: `${theme.spacing.unit * 4}px 0 ${theme.spacing.unit * 3}px`,
     },
     layout: {
       width: 'auto',
@@ -56,6 +97,9 @@ const styles = (theme) => {
       margin: theme.spacing.unit,
       maxWidth: 120,
 
+    },
+    brief:{
+      fontSize: '.75em'
     }
   }
 };
@@ -95,6 +139,7 @@ const roverNames = ['curiosity', 'opportunity', 'spirit'];
 
 class App extends React.Component{
   constructor(props){
+    
     super(props);
     this.state = {
       sliderValue: 0,
@@ -102,9 +147,16 @@ class App extends React.Component{
       totalPhotos:0,
       cam: '',
       sol: 0,
+      photosAvailable: 3702,
       imageObjects:[],
       photos: []
     }
+  }
+
+  getAvailablePhotos = () =>{
+    this.setState((prevState, props)=>({
+      photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol].total_photos
+    }))
   }
 
   handleLoadClick = (ev) => {
@@ -173,11 +225,15 @@ class App extends React.Component{
   }
 
   handleRoverChange = (ev) =>{
+    console.log('rovername: ' + Object.keys(rovers[roverNames[this.state.rover]]));
+    console.log('maxsol: ' + rovers[roverNames[this.state.rover]].max_sol);
     this.setState({rover: ev.target.value});
+    this.getAvailablePhotos();
   }
 
   handleSolChange = (ev) =>{
     this.setState({sol: ev.target.value});
+    this.getAvailablePhotos();
   }
 
   render(){
@@ -187,7 +243,7 @@ class App extends React.Component{
         <CssBaseline />
         <AppBar position="static" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
+            <Typography  variant="h6" color="inherit" noWrap>
             Rover View
             </Typography>
           </Toolbar>
@@ -199,11 +255,11 @@ class App extends React.Component{
               <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
                 Rover View
               </Typography>
-              <Typography variant="h6" align="center" color="textSecondary" paragraph>
+              <Typography className={classes.brief} variant="h6" align="center" color="textSecondary" paragraph>
                 Choose a rover, camera, and sol(Martian day, starting from the beginning of the mission), click load, and use the slider to animate the images
               </Typography>
-              <div className={classes.heroButtons}>
-                <Grid container spacing={16} justify="center">
+              <div >
+                <Grid container spacing={16} alignItems="center" >
                   <Grid item xs={3}>
                   <FormControl className={classes.formControl}>
                   <InputLabel shrink >
@@ -218,15 +274,13 @@ class App extends React.Component{
                     className={classes.selectEmpty}
                   >
 
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
+                  
                   <MenuItem value={0}>Curiosity</MenuItem>
                   <MenuItem value={1}>Opportunity</MenuItem>
                   <MenuItem value={2}>Spirit</MenuItem>
                   
                 </Select>
-            
+                <FormHelperText></FormHelperText>
                     </FormControl>
                   </Grid>
                   <Grid item xs={3}>
@@ -241,26 +295,26 @@ class App extends React.Component{
                     displayEmpty
                     name="cam"
                     className={classes.selectEmpty}
+                    
                   >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
+                  
                   {roverCams[this.state.rover].map((item, index) => <MenuItem key={index} value={item.abbrev}>{item.full} </MenuItem>)}
                   
                 </Select>
+                <FormHelperText></FormHelperText>
             
                     </FormControl>
                   </Grid>
 
                   <Grid item xs={3}>
                   <FormControl className={classes.formControl}>
-                  <TextField
-                    
+                  <TextField 
+                    className={classes.solSpinner}
                     label="Sol"
                     value={this.state.sol}
                     onChange={this.handleSolChange}
                     type="number"
-                    
+                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol || 2350}`}
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -268,10 +322,12 @@ class App extends React.Component{
                   />
                   </FormControl>
                   </Grid>
+                  
                   <Grid item xs={3}>
-                  <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button}>
+                  <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
                     Load
                   </Button>
+                  <FormHelperText>{this.state.photosAvailable} photos available</FormHelperText>
                   </Grid>
 
                   <Grid item xs={10}>
@@ -300,7 +356,7 @@ class App extends React.Component{
           <div className={classes.layout}>
             {/* End hero unit */}
             <Grid container spacing={40}>
-            {this.state.imageObjects.map((item, index)=><DynamicPreloadedImage show={this.state.sliderValue - 1 === index} src={item.src} key={item.src} alt={`frame ${index}`}/>)}
+            {this.state.imageObjects.map((item, index)=><DynamicPreloadedImage aspect={item.width/item.height} show={this.state.sliderValue - 1 === index} src={item.src} key={item.src} alt={`frame ${index}`}/>)}
               
             </Grid>
           </div>

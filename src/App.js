@@ -232,8 +232,10 @@ class App extends React.Component{
   }
 
   handleSolChange = (ev) =>{
-    this.setState({sol: ev.target.value});
-    this.getAvailablePhotos();
+    if(/^\d+$/.test(ev.target.value) &&  ev.target.value >= 0){
+      this.setState({sol: parseInt(ev.target.value)});
+      this.getAvailablePhotos();
+    }
   }
 
   render(){

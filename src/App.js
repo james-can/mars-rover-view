@@ -154,9 +154,11 @@ class App extends React.Component{
   }
 
   getAvailablePhotos = () =>{
-    this.setState((prevState, props)=>({
-      photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol].total_photos
-    }))
+    if(rovers.curiosity.photos && rovers.opportunity.photos && rovers.spirit.photos){
+      this.setState((prevState, props)=>({
+        photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol].total_photos
+      }));
+    }
   }
 
   handleLoadClick = (ev) => {

@@ -19,8 +19,13 @@ import DynamicPreloadedImage from './DynamicPreloadedImage'
 import 'whatwg-fetch';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
+
 //manifest objects to store useful information about each rover
 const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
+
+
+
+
 
 const setManifests = (json) => {
   var roverName = json.photo_manifest.name.toLowerCase();
@@ -60,7 +65,7 @@ const styles = (theme) => {
   
   return {
     slider:{
-      padding: '22px'
+      padding: theme.spacing.unit
       
     },
     totalSolDisplay:{
@@ -243,6 +248,7 @@ class App extends React.Component{
   render(){
     const { classes } = this.props;
     return (
+     
       <React.Fragment>
         <CssBaseline />
         <AppBar position="static" className={classes.appBar}>
@@ -263,8 +269,9 @@ class App extends React.Component{
                 Choose a rover, camera, and sol(Martian day, starting from the beginning of the mission), click load, and use the slider to animate the images
               </Typography>
               <div >
-                <Grid container spacing={16} alignItems="center" >
-                  <Grid item xs={3}>
+                <Grid container spacing={16} justify="space-evenly" alignItems="center" >
+                  <Grid item xs={6} sm={3} >
+                  <Grid container justify="center">
                   <FormControl className={classes.formControl}>
                   <InputLabel shrink >
                     Rover
@@ -284,10 +291,11 @@ class App extends React.Component{
                   <MenuItem value={2}>Spirit</MenuItem>
                   
                 </Select>
-                <FormHelperText></FormHelperText>
+                <FormHelperText/>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={3}>
+                  </Grid>
+                  <Grid item xs={6} sm={3} >
                   <FormControl className={classes.formControl}>
                   <InputLabel shrink >
                     Camera
@@ -310,7 +318,8 @@ class App extends React.Component{
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={3}>
+                  <Grid item xs={6} sm={3} >
+                  <Grid container justify="center">
                   <FormControl className={classes.formControl}>
                   <TextField 
                     className={classes.solSpinner}
@@ -326,14 +335,15 @@ class App extends React.Component{
                   />
                   </FormControl>
                   </Grid>
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
                   
-                  <Grid item xs={3}>
                   <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
                     Load
                   </Button>
                   <FormHelperText>{this.state.photosAvailable} photos available</FormHelperText>
                   </Grid>
-
+                  
                   <Grid item xs={10}>
                   <Slider
                     
@@ -365,8 +375,8 @@ class App extends React.Component{
             </Grid>
           </div>
         </main>
-        
-      </React.Fragment>
+        </React.Fragment>
+      
     );
   }
 }

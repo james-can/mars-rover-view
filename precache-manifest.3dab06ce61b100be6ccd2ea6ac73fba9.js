@@ -4,19 +4,19 @@ self.__precacheManifest = [
     "url": "/mars-rover-view/static/js/runtime~main.9d785713.js"
   },
   {
-    "revision": "5f45a3d08f135b9e4da6",
-    "url": "/mars-rover-view/static/js/main.3709553b.chunk.js"
+    "revision": "263e9342b38cdbb6375f",
+    "url": "/mars-rover-view/static/js/main.5918a704.chunk.js"
   },
   {
     "revision": "5293608c7b2b8079f6f4",
     "url": "/mars-rover-view/static/js/2.5c817074.chunk.js"
   },
   {
-    "revision": "5f45a3d08f135b9e4da6",
+    "revision": "263e9342b38cdbb6375f",
     "url": "/mars-rover-view/static/css/main.92e02741.chunk.css"
   },
   {
-    "revision": "58a52d645f6fec6e256fcfbaf06dc3b0",
+    "revision": "da32429b4380e01cf68772de01a1f4b8",
     "url": "/mars-rover-view/index.html"
   }
 ];

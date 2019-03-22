@@ -74,6 +74,9 @@ const styles = (theme) => {
     solSpinner:{
       
     },
+    imageContainer:{
+      minHeight: '1000px',
+    },
     appBar: {
       position: 'relative',
     },
@@ -97,6 +100,9 @@ const styles = (theme) => {
         marginLeft: 'auto',
         marginRight: 'auto',
       },
+    },
+    cardGrid: {
+      padding: `${theme.spacing.unit * 8}px 0`,
     },
     formControl: {
       margin: theme.spacing.unit,
@@ -371,9 +377,9 @@ class App extends React.Component{
               </div>
             </div>
           </div>
-          <div className={classes.layout}>
+          <div className={classNames(classes.layout, classes.cardGrid)}>
             {/* End hero unit */}
-            <Grid container spacing={40}>
+            <Grid container spacing={16}  className={classes.imageContainer}>
             {this.state.imageObjects.map((item, index)=><DynamicPreloadedImage aspect={item.width/item.height} show={this.state.sliderValue - 1 === index} src={item.src} key={item.src} alt={`frame ${index}`}/>)}
               
             </Grid>

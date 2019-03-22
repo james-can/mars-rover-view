@@ -79,12 +79,14 @@ const styles = (theme) => {
     },
     appBar: {
       position: 'relative',
+      width: '100%'
     },
     button:{
       margin: theme.spacing.unit
     },
     heroUnit: {
       backgroundColor: theme.palette.background.paper,
+      width: '100%'
     },
     heroContent: {
       maxWidth: 600,
@@ -159,7 +161,7 @@ class App extends React.Component{
       sliderValue: 0,
       rover: 0,
       totalPhotos:0,
-      cam: '',
+      cam: 'mast',
       sol: 0,
       photosAvailable: 3702,
       imageObjects:[],
@@ -243,7 +245,11 @@ class App extends React.Component{
   handleRoverChange = (ev) =>{
     console.log('rovername: ' + Object.keys(rovers[roverNames[this.state.rover]]));
     console.log('maxsol: ' + rovers[roverNames[this.state.rover]].max_sol);
-    this.setState({rover: ev.target.value, sol: 0});
+    this.setState({
+      rover: ev.target.value, 
+      sol: 0,
+      cam: ev.target.value === 0 ? 'mast' : 'pancam'
+    });
     this.getAvailablePhotos();
   }
 

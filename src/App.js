@@ -100,8 +100,11 @@ const styles = (theme) => {
     },
     formControl: {
       margin: theme.spacing.unit,
-      maxWidth: 120,
+      width: 120,
 
+    },
+    camera:{
+      minWidth: 80
     },
     brief:{
       fontSize: '.75em'
@@ -234,12 +237,12 @@ class App extends React.Component{
   handleRoverChange = (ev) =>{
     console.log('rovername: ' + Object.keys(rovers[roverNames[this.state.rover]]));
     console.log('maxsol: ' + rovers[roverNames[this.state.rover]].max_sol);
-    this.setState({rover: ev.target.value});
+    this.setState({rover: ev.target.value, sol: 0});
     this.getAvailablePhotos();
   }
 
   handleSolChange = (ev) =>{
-    if(/^\d+$/.test(ev.target.value) &&  ev.target.value >= 0){
+    if(/^\d+$/.test(ev.target.value) &&  ev.target.value >= 0  && ev.target.value < rovers[roverNames[this.state.rover]].max_sol ){
       this.setState({sol: parseInt(ev.target.value)});
       this.getAvailablePhotos();
     }
@@ -296,6 +299,7 @@ class App extends React.Component{
                   </Grid>
                   </Grid>
                   <Grid item xs={6} sm={3} >
+                  
                   <FormControl className={classes.formControl}>
                   <InputLabel shrink >
                     Camera
@@ -316,8 +320,8 @@ class App extends React.Component{
                 <FormHelperText></FormHelperText>
             
                     </FormControl>
+                 
                   </Grid>
-
                   <Grid item xs={6} sm={3} >
                   <Grid container justify="center">
                   <FormControl className={classes.formControl}>
@@ -327,7 +331,7 @@ class App extends React.Component{
                     value={this.state.sol}
                     onChange={this.handleSolChange}
                     type="number"
-                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol || 2350}`}
+                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2350}`}
                     InputLabelProps={{
                       shrink: true,
                     }}

@@ -27,7 +27,8 @@ const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
 
 
 
-const setManifests = (json) => {
+const setManifest = (json) => {
+  console.log('json: ' + json);
   var roverName = json.photo_manifest.name.toLowerCase();
   rovers[roverName] = json.photo_manifest;
 
@@ -47,18 +48,28 @@ const setManifests = (json) => {
   rovers[roverName].photos = newPhotoArray;
 };
 
-for(let i in rovers){
+const initializeManifest = (index) =>{
   
-  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${i}`;
+  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
   console.log('fetchurl: ' + fetchurl);
   fetch(fetchurl)
-  .then(function(response) {
+  .then((response) => {
     return response.json()
-  }).then(setManifests).catch(function(ex) {
-    console.log('parsing failed', ex)
+  }).then(setManifest).catch((ex) => {
+    console.log('parsing failed', ex);
+    console.log('typeof ex: ' + typeof ex);
+
+    if(typeof ex == 'object'){
+      console.log('ex keys: ' + Object.keys(ex));
+    }
+
+    initializeManifest(index);
   });
 
+}
 
+for(let i in rovers){
+  initializeManifest(i);
 }
 
 const styles = (theme) => {

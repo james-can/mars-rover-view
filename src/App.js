@@ -178,51 +178,50 @@ class App extends React.Component{
   }
 
   handleLoadClick = (ev) => {
-    console.log('totalphotos: ' + this.state.totalPhotos);
-    const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}/${this.state.cam}`
-    console.log(fetchUrl);
+    const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}/${this.state.cam}`;
     const self = this;
     fetch(fetchUrl)
     .then(function(response) {
       return response.json()
     }).then(function(json) {
-      console.log('parsed json', json);
      
+      // Thought I needed promises, but looks like I can let the user
+      // start browsing the partially loaded photos before they're all 
+      // loaded.
+
+      // Will leave it commented for now but probably will delete it entirely
+      //var promises = [];
       
       var images = [];
-      var promises = [];
+      
       for(let i in json.photos){
         let img = new Image();
         img.src = json.photos[i].img_src;
-        promises.push(new Promise((resolve, reject)=>{
+        //promises.push(new Promise((resolve, reject)=>{
           img.onload = () =>{
-            resolve(img.src);
+            //resolve(img.src);
           }
           img.onerror = () =>{
-            reject(img.src);
+            //reject(img.src);
           }
-        }));
+        //}));
 
         images.push(img);
-
-        Promise.all(promises).then(()=>{
-          console.log('all images loaded');
-          self.setState({
-            totalPhotos: json.photos.length,
-            photos: json.photos,
-            imageObjects: images
-          });
-        }).catch((errUrl)=>{
-          console.log('failed to load: ' + errUrl);
-        });
-
-        self.setState({
-          totalPhotos: json.photos.length,
-          photos: json.photos,
-          imageObjects: images
-        });
       }
+
+      self.setState({
+        totalPhotos: json.photos.length,
+        photos: json.photos,
+        imageObjects: images
+      });
+
       
+
+      /* Promise.all(promises).then(()=>{
+        console.log('all images loaded');
+      }).catch((errUrl)=>{
+        console.log('failed to load: ' + errUrl);
+      }); */
 
     }).catch(function(ex) {
       console.log('parsing failed', ex)

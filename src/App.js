@@ -23,10 +23,6 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 //manifest objects to store useful information about each rover
 const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
 
-
-
-
-
 const setManifest = (json) => {
   console.log('json: ' + json);
   var roverName = json.photo_manifest.name.toLowerCase();
@@ -41,7 +37,7 @@ const setManifest = (json) => {
   // re-map the array with placeholder elements with value of 0 to make  
   // it easier to navigate
 
-  for(let i = photos[0].sol, j = 0; newPhotoArray.length < rovers[roverName].max_sol; i++){
+  for(let i = 0, j = 0; newPhotoArray.length < rovers[roverName].max_sol; i++){
     newPhotoArray.push(photos[j].sol === i ? photos[j++] : {sol: i , earth_date: '', total_photos: 0 , cameras: []});
   }
 
@@ -50,7 +46,7 @@ const setManifest = (json) => {
 
 const initializeManifest = (index) =>{
   
-  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
+  let fetchurl = `https://api.nasa.gov/mars-photos/api/v1/manifests/${index}?api_key=DEMO_KEY`;
   console.log('fetchurl: ' + fetchurl);
   fetch(fetchurl)
   .then((response) => {
@@ -135,6 +131,7 @@ class cam{
   constructor(abbrev, full){
     this._abbrev = abbrev;
     this._full = full;
+    this._totalPhotos = 0;
   }
   get abbrev(){
     return this._abbrev;
@@ -142,10 +139,16 @@ class cam{
   get full(){
     return this._full;
   }
+  get totalPhotos(){
+    return this._totalPhotos;
+  }
+  set totalPhotos(total){
+    this._totalPhotos = total;
+  }
 }
 
 const cams = [
-  new cam('fhaz', 'Front Hazard Avoidance'),
+ new cam('fhaz', 'Front Hazard Avoidance'),
   new cam('rhaz', 'Rear Hazard Avoidance'),
   new cam('mast', 'Mast'),
   new cam('chemcam', 'Chemistry and Camera Complex'),
@@ -155,13 +158,6 @@ const cams = [
   new cam('pancam', 'Panoramic'),
   new cam('minites', 'Miniature Thermal Emission Spectrometer')
 ];
-
-const roverCams = [
-  [0,1,2,3,4,5,6].map((item)=> cams[item]),
-  [0,1,6,7,8].map((item)=> cams[item]),
-  [0,1,6,7,8].map((item)=> cams[item])
-];
-
 const roverNames = ['curiosity', 'opportunity', 'spirit'];
 
 class App extends React.Component{
@@ -170,80 +166,112 @@ class App extends React.Component{
     super(props);
     this.state = {
       sliderValue: 0,
-      rover: 0,
-      totalPhotos:0,
-      cam: 'mast',
-      sol: 0,
+      rover: 0,       // index to select which of the three rovers (0: curiosity, 1: opportunity, 2: spirit),
+                      // used for the select menu
+
+      roverCamIndex:0,// gets updated with the value of rover when load is clicked.  This is the value
+                      // which is actually used to pull data.
+
+      totalPhotos:0,  // total photos for this rover on this sol (as opposed to a specific camera)
+      cam: '',
+      sol: '0',
       photosAvailable: 3702,
       imageObjects:[],
-      photos: []
+      photos: [],
+      roverCams : [
+        [0,1,2,3,4,5,6].map((item)=> cams[item]),
+        [0,1,6,7,8].map((item)=> cams[item]),
+        [0,1,6,7,8].map((item)=> cams[item])
+      ]
     }
   }
 
   getAvailablePhotos = () =>{
     if(rovers.curiosity.photos && rovers.opportunity.photos && rovers.spirit.photos){
       this.setState((prevState, props)=>({
-        photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol].total_photos
+        photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol || 0].total_photos
       }));
     }
   }
 
   handleLoadClick = (ev) => {
-    const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}/${this.state.cam}`;
+    
+    const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}`;
     const self = this;
     fetch(fetchUrl)
     .then(function(response) {
       return response.json()
     }).then(function(json) {
-     
-      // Thought I needed promises, but looks like I can let the user
+      self.setCameraDistrubtion(json.photos);
+      
+      var newCam;
+      self.setState((prevState, props) => {
+        newCam = prevState.rover === 0 ? 'mast' : 'pancam';
+        
+        return {
+          photos: json.photos,
+          cam: newCam,
+          roverCamIndex: prevState.rover
+        }
+      });
+      self.loadImages(newCam);
+    }).catch(function(ex) {
+      console.log('parsing failed', ex)
+    });
+    
+  }
+
+  
+  loadImages = (camName) => {
+    // Thought I needed promises, but looks like I can let the user
       // start browsing the partially loaded photos before they're all 
       // loaded.
 
       // Will leave it commented for now but probably will delete it entirely
       //var promises = [];
-      
       var images = [];
+      const camNameUpper = camName.toUpperCase();
       
-      for(let i in json.photos){
-        let img = new Image();
-        img.src = json.photos[i].img_src;
-        //promises.push(new Promise((resolve, reject)=>{
-          img.onload = () =>{
-            //resolve(img.src);
-          }
-          img.onerror = () =>{
-            //reject(img.src);
-          }
-        //}));
+      for(let i in this.state.photos){
 
-        images.push(img);
+        // Selectively load the images from the camera the user selects, only once they've selected it.
+        if(camNameUpper === this.state.photos[i].camera.name){
+          let img = new Image();
+          img.src = this.state.photos[i].img_src;
+          //promises.push(new Promise((resolve, reject)=>{
+            img.onload = () =>{
+              //resolve(img.src);
+            }
+            img.onerror = () =>{
+              //reject(img.src);
+            }
+          //}));
+
+          images.push(img);
+        }
       }
 
-      self.setState({
-        totalPhotos: json.photos.length,
-        photos: json.photos,
-        imageObjects: images
-      });
-
-      
+      this.setState((prevState, props) =>(
+        {
+        totalPhotos: images.length,//prevState.photos.length,
+        imageObjects: [...images],/* , prevState.imageObjects */
+        sliderValue: images.length > 0 ? 1 : 0
+      }));
 
       /* Promise.all(promises).then(()=>{
         console.log('all images loaded');
+        
       }).catch((errUrl)=>{
         console.log('failed to load: ' + errUrl);
       }); */
-
-    }).catch(function(ex) {
-      console.log('parsing failed', ex)
-    });
   }
 
   handleCamChange = (ev) =>{
-    console.log('handleCamChange, event: ' + ev);
+    
     this.setState({
       cam: ev.target.value
     });
+    this.loadImages(ev.target.value);
   }
   
   handleSliderChange = (ev, value) =>{
@@ -253,21 +281,42 @@ class App extends React.Component{
   }
 
   handleRoverChange = (ev) =>{
-    console.log('rovername: ' + Object.keys(rovers[roverNames[this.state.rover]]));
-    console.log('maxsol: ' + rovers[roverNames[this.state.rover]].max_sol);
+    
     this.setState({
-      rover: ev.target.value, 
-      sol: 0,
-      cam: ev.target.value === 0 ? 'mast' : 'pancam'
+      rover: ev.target.value,
+      
     });
+    
     this.getAvailablePhotos();
   }
+  
 
   handleSolChange = (ev) =>{
-    if(/^\d+$/.test(ev.target.value) &&  ev.target.value >= 0  && ev.target.value < rovers[roverNames[this.state.rover]].max_sol ){
-      this.setState({sol: parseInt(ev.target.value)});
+    const { value } = ev.target;
+    if(/^\d*$/.test(value) &&  value >= 0  && value < rovers[roverNames[this.state.rover]].max_sol ){ // make sure the number is a number and is in range
+      this.setState({sol: /^0?$/.test(value) ? 0 : value.replace(/^0*/, '')}); // see if input is 0 or empty string, otherwise trim leading zeros
       this.getAvailablePhotos();
     }
+  }
+
+  // This is to update the photo count next to each camera in the select menu
+  setCameraDistrubtion = (photos) => {
+    this.setState((prevState, props) => {
+
+      var cameraPhotoCountMap = {'FHAZ':0, 'RHAZ':0, 'MAST':0, 'CHEMCAM':0, 'MAHLI':0, 'MARDI':0, 'NAVCAM':0, 'PANCAM':0, 'MINITES':0};
+
+      for(let i in photos)
+        cameraPhotoCountMap[photos[i].camera.name]++; 
+
+        return {roverCams: prevState.roverCams.map((item, index) => 
+          prevState.rover === index ? 
+          item.map((_item) => {
+            // Spread operator only seems to work on object literals, making this variable necessary:
+            let tempCam = {abbrev: _item.abbrev, full: _item.full, totalPhotos: 0};
+            return({...tempCam, totalPhotos: cameraPhotoCountMap[_item.abbrev.toUpperCase()]})
+          }) 
+          : item)}
+    });
   }
 
   render(){
@@ -336,7 +385,13 @@ class App extends React.Component{
                     
                   >
                   
-                  {roverCams[this.state.rover].map((item, index) => <MenuItem key={index} value={item.abbrev}>{item.full} </MenuItem>)}
+                  {this.state.roverCams[this.state.roverCamIndex].map((item, index) => 
+                    (item.totalPhotos > 0 || this.state.cam === item.abbrev) && 
+                    <MenuItem 
+                      key={index} 
+                      value={item.abbrev}>
+                      {item.full}{` (${item.totalPhotos})`} 
+                      </MenuItem>)}
                   
                 </Select>
                 <FormHelperText></FormHelperText>
@@ -350,10 +405,10 @@ class App extends React.Component{
                   <TextField 
                     className={classes.solSpinner}
                     label="Sol"
-                    value={this.state.sol}
+                    value={(this.state.sol)}
                     onChange={this.handleSolChange}
                     type="number"
-                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2350}`}
+                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2357}`}
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -396,7 +451,12 @@ class App extends React.Component{
           <div className={classNames(classes.layout, classes.cardGrid)}>
             {/* End hero unit */}
             <Grid container spacing={16}  className={classes.imageContainer}>
-            {this.state.imageObjects.map((item, index)=><DynamicPreloadedImage aspect={item.width/item.height} show={this.state.sliderValue - 1 === index} src={item.src} key={item.src} alt={`frame ${index}`}/>)}
+
+              {this.state.imageObjects.map((item, index)=>
+                <DynamicPreloadedImage aspect={item.width/item.height} 
+                  show={this.state.sliderValue - 1 === index} 
+                  src={item.src} key={item.src} 
+                  alt={`frame ${index}`}/>)}
               
             </Grid>
           </div>

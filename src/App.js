@@ -46,7 +46,7 @@ const setManifest = (json) => {
 
 const initializeManifest = (index) =>{
   
-  let fetchurl = `https://api.nasa.gov/mars-photos/api/v1/manifests/${index}?api_key=DEMO_KEY`;
+  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
   console.log('fetchurl: ' + fetchurl);
   fetch(fetchurl)
   .then((response) => {
@@ -408,7 +408,7 @@ class App extends React.Component{
                     value={(this.state.sol)}
                     onChange={this.handleSolChange}
                     type="number"
-                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2357}`}
+                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2360}`}
                     InputLabelProps={{
                       shrink: true,
                     }}

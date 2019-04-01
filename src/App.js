@@ -16,8 +16,10 @@ import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
 import Slider from '@material-ui/lab/Slider';
 import DynamicPreloadedImage from './DynamicPreloadedImage'
+
 import 'whatwg-fetch';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import Floating from './Floating';
 
 
 //manifest objects to store useful information about each rover
@@ -75,12 +77,11 @@ const styles = (theme) => {
       padding: theme.spacing.unit
       
     },
-    totalSolDisplay:{
+    sliderDisplay:{
+      color: theme.palette.primary.main,
       
     },
-    solSpinner:{
-      
-    },
+   
     imageContainer:{
       minHeight: '1000px',
     },
@@ -146,6 +147,8 @@ class cam{
     this._totalPhotos = total;
   }
 }
+
+
 
 const cams = [
  new cam('fhaz', 'Front Hazard Avoidance'),
@@ -321,6 +324,7 @@ class App extends React.Component{
 
   render(){
     const { classes } = this.props;
+    //console.log('props: ' + JSON.stringify(this.props));
     return (
      
       <React.Fragment>
@@ -424,38 +428,50 @@ class App extends React.Component{
                   </Button>
                   <FormHelperText>{this.state.photosAvailable} photos available</FormHelperText>
                   </Grid>
-                  
-                  <Grid item xs={10}>
-                  <Slider
+                 
+                 <Floating children={[
+                  <Grid container justify="space-evenly" alignItems='center' >
+                    <Grid item xs={10}>
                     
-                    className={ classes.slider }
-                    value={this.state.sliderValue}
-                    min={1}
-                    max={this.state.totalPhotos}
-                    step={1}
-                    onChange={this.handleSliderChange}
-                  />
-                  </Grid>
-                  <Grid item xs={2}>
-                  <Typography variant="h6" align="center" color="textSecondary" paragraph>
-                    {this.state.sliderValue}
-                  </Typography>
-                  </Grid>
-
+                    <Slider
+                      
+                      className={ classes.slider }
+                      value={this.state.sliderValue}
+                      min={1}
+                      max={this.state.totalPhotos}
+                      step={1}
+                      onChange={this.handleSliderChange}
+                    />
+                    
+                    </Grid>
+                    <Grid item xs={2} align="center">
+                    <Typography variant="h6" className={classes.sliderDisplay} >
+                      {this.state.sliderValue}
+                    </Typography>
+                    </Grid>
+                    </Grid>
+                 ]}/>
+                  
+                  {/*<Grid item xs={12}><Typography variant="h6">&nbsp;</Typography></Grid>*/}
                 </Grid>
-
+                
+                
+                    
                 
               </div>
             </div>
           </div>
           <div className={classNames(classes.layout, classes.cardGrid)}>
             {/* End hero unit */}
+            
             <Grid container spacing={16}  className={classes.imageContainer}>
 
               {this.state.imageObjects.map((item, index)=>
-                <DynamicPreloadedImage aspect={item.width/item.height} 
+                <DynamicPreloadedImage 
+                  aspect={item.width/item.height} 
                   show={this.state.sliderValue - 1 === index} 
-                  src={item.src} key={item.src} 
+                  src={item.src} 
+                  key={item.src} 
                   alt={`frame ${index}`}/>)}
               
             </Grid>
@@ -471,4 +487,4 @@ App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles,{withTheme: false})(App);
+export default withStyles(styles)(App);

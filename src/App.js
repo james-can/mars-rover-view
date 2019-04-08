@@ -16,7 +16,10 @@ import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
 import Slider from '@material-ui/lab/Slider';
 import DynamicPreloadedImage from './DynamicPreloadedImage'
-
+import Card from "@material-ui/core/Card";
+import CardHeader from "@material-ui/core/CardHeader";
+import CardContent from "@material-ui/core/CardContent";
+import Paper from '@material-ui/core/Paper';
 import 'whatwg-fetch';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Floating from './Floating';
@@ -24,6 +27,16 @@ import Floating from './Floating';
 
 //manifest objects to store useful information about each rover
 const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
+const hexToDec = (hex) => {
+  console.log('hex: ' + hex);
+  let dec = 0;
+  const map = {'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15};
+  for(let i = 0; i < hex.length; i++ ){
+    dec += parseInt('abcdef'.includes(hex[i]) ? map[hex[i]] : hex[i]) * Math.pow(16, hex.length - 1 - i);
+  }
+  return dec;
+};
+const hexToRgb = (hex) => [hexToDec(`${hex[1]}${hex[2]}`), hexToDec(`${hex[3]}${hex[4]}`), hexToDec(`${hex[5]}${hex[6]}`)];
 
 const setManifest = (json) => {
   console.log('json: ' + json);
@@ -71,6 +84,10 @@ for(let i in rovers){
 }
 
 const styles = (theme) => {
+  console.log('theme.palette.primary.dark: ' + theme.palette.primary.main);
+  console.log('theme.palette.primary.dark: ' + theme.palette.primary.dark);
+  const rgb = hexToRgb(theme.palette.primary.main);
+  
   
   return {
     slider:{
@@ -81,9 +98,34 @@ const styles = (theme) => {
       color: theme.palette.primary.main,
       
     },
-   
+
+    camSelectContainer:{
+      position: 'absolute',top: 0,left: 0,
+      
+      maxWidth: '600px'
+    },
+
+    
+
+    sliderContainer:{
+      
+      padding: '0 16px'
+    },
+    camSelect:{
+      opacity: 1,
+      maxHeight: '100px'
+    },
+    
+    camSelectContainerNested:{
+      backgroundColor: `rgba(204,204,204, 1)`,
+      padding: '0 5px 0 5px'
+    },
+
     imageContainer:{
+      position: 'relative', left: 0, top: 0,
+      alignItems: 'flex-start',
       minHeight: '1000px',
+      justifyContent: 'flex-start'
     },
     appBar: {
       position: 'relative',
@@ -112,12 +154,15 @@ const styles = (theme) => {
       },
     },
     cardGrid: {
-      padding: `${theme.spacing.unit * 8}px 0`,
+      padding: `${theme.spacing.unit}px 0`,
     },
     formControl: {
       margin: theme.spacing.unit,
       width: 120,
 
+    },
+    mainField:{
+      width: '90%'
     },
     camera:{
       minWidth: 80
@@ -330,154 +375,157 @@ class App extends React.Component{
       <React.Fragment>
         <CssBaseline />
         <AppBar position="static" className={classes.appBar}>
-          <Toolbar>
-            <Typography  variant="h6" color="inherit" noWrap>
-            Rover View
-            </Typography>
-          </Toolbar>
+            <Toolbar>
+              <Typography  variant="h6" color="inherit" noWrap>
+                  Rover View
+              </Typography>
+            </Toolbar>
         </AppBar>
         <main>
-          {/* Hero unit */}
-          <div className={classes.heroUnit}>
-            <div className={classes.heroContent}>
-              <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-                Rover View
-              </Typography>
-              <Typography className={classes.brief} variant="h6" align="center" color="textSecondary" paragraph>
-                Choose a rover, camera, and sol(Martian day, starting from the beginning of the mission), click load, and use the slider to animate the images
-              </Typography>
-              <div >
-                <Grid container spacing={16} justify="space-evenly" alignItems="center" >
-                  <Grid item xs={6} sm={3} >
-                  <Grid container justify="center">
-                  <FormControl className={classes.formControl}>
-                  <InputLabel shrink >
-                    Rover
-                  </InputLabel>
-                  <Select
-                    value={this.state.rover}
-                    onChange={this.handleRoverChange}
-                    input={<Input name="rover"/>}
-                    displayEmpty
-                    name="rover"
-                    className={classes.selectEmpty}
-                  >
-
-                  
-                  <MenuItem value={0}>Curiosity</MenuItem>
-                  <MenuItem value={1}>Opportunity</MenuItem>
-                  <MenuItem value={2}>Spirit</MenuItem>
-                  
-                </Select>
-                <FormHelperText/>
-                    </FormControl>
-                  </Grid>
-                  </Grid>
-                  <Grid item xs={6} sm={3} >
-                  
-                  <FormControl className={classes.formControl}>
-                  <InputLabel shrink >
-                    Camera
-                  </InputLabel>
-                  <Select
-                    value={this.state.cam}
-                    onChange={this.handleCamChange}
-                    input={<Input name="cam"/>}
-                    displayEmpty
-                    name="cam"
-                    className={classes.selectEmpty}
-                    
-                  >
-                  
-                  {this.state.roverCams[this.state.roverCamIndex].map((item, index) => 
-                    (item.totalPhotos > 0 || this.state.cam === item.abbrev) && 
-                    <MenuItem 
-                      key={index} 
-                      value={item.abbrev}>
-                      {item.full}{` (${item.totalPhotos})`} 
-                      </MenuItem>)}
-                  
-                </Select>
-                <FormHelperText></FormHelperText>
-            
-                    </FormControl>
-                 
-                  </Grid>
-                  <Grid item xs={6} sm={3} >
-                  <Grid container justify="center">
-                  <FormControl className={classes.formControl}>
-                  <TextField 
-                    className={classes.solSpinner}
-                    label="Sol"
-                    value={(this.state.sol)}
-                    onChange={this.handleSolChange}
-                    type="number"
-                    helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2360}`}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    
-                  />
-                  </FormControl>
-                  </Grid>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                  
-                  <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
-                    Load
-                  </Button>
-                  <FormHelperText>{this.state.photosAvailable} photos available</FormHelperText>
-                  </Grid>
-                 
-                 <Floating children={[
-                  <Grid container justify="space-evenly" alignItems='center' >
-                    <Grid item xs={10}>
-                    
-                    <Slider
-                      
-                      className={ classes.slider }
-                      value={this.state.sliderValue}
-                      min={1}
-                      max={this.state.totalPhotos}
-                      step={1}
-                      onChange={this.handleSliderChange}
-                    />
-                    
+            {/* Hero unit */}
+            <div className={classes.heroUnit}>
+              <div className={classes.heroContent}>
+                  <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
+                    Rover View
+                  </Typography>
+                  <Typography className={classes.brief} variant="h6" align="center" color="textSecondary" paragraph>
+                    Choose a rover, camera, and sol(Martian day, starting from the beginning of the mission), click load, and use the slider to animate the images
+                  </Typography>
+                  <div >
+                    <Grid container  justify="space-evenly" alignItems="center" >
+                        <Grid item xs={6} sm={5} >
+                          <Grid container justify="center" >
+                              <FormControl className={classNames(classes.mainField, classes.formControl)} >
+                                <InputLabel shrink >
+                                    Rover
+                                </InputLabel>
+                                <Select
+                                value={this.state.rover}
+                                onChange={this.handleRoverChange}
+                                input={<Input name="rover"/>}
+                                displayEmpty
+                                name="rover"
+                                className={classes.selectEmpty}
+                                >
+                                <MenuItem value={0}>Curiosity</MenuItem>
+                                <MenuItem value={1}>Opportunity</MenuItem>
+                                <MenuItem value={2}>Spirit</MenuItem>
+                                </Select>
+                                <FormHelperText/>
+                              </FormControl>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={6} sm={1} >
+                        </Grid>
+                        <Grid item xs={6} sm={3} >
+                          <Grid container justify="center">
+                              <FormControl className={classNames(classes.mainField, classes.formControl)}>
+                                <TextField 
+                                className={classes.solSpinner}
+                                label="Sol"
+                                value={(this.state.sol)}
+                                onChange={this.handleSolChange}
+                                type="number"
+                                helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2360}`}
+                                InputLabelProps={{
+                                shrink: true,
+                                }}
+                                />
+                              </FormControl>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                          <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
+                          Load
+                          </Button>
+                          <FormHelperText>{this.state.photosAvailable} photos available </FormHelperText>
+                        </Grid>
+                        <Floating children={[
+                        <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
+                          <Grid item xs={10}>
+                              <Slider
+                                className={classes.slider}
+                                value={this.state.sliderValue}
+                                min={1}
+                                max={this.state.totalPhotos}
+                                step={1}
+                                onChange={this.handleSliderChange}
+                                />
+                          </Grid>
+                          <Grid item xs={2} align="center">
+                              <Typography variant="h6" className={classes.sliderDisplay} >
+                                {this.state.sliderValue}
+                              </Typography>
+                          </Grid>
+                        </Grid>
+                        ]}/>
+                        {/*
+                        <Grid item xs={12}>
+                          <Typography variant="h6">&nbsp;</Typography>
+                        </Grid>
+                        */}
                     </Grid>
-                    <Grid item xs={2} align="center">
-                    <Typography variant="h6" className={classes.sliderDisplay} >
-                      {this.state.sliderValue}
-                    </Typography>
-                    </Grid>
-                    </Grid>
-                 ]}/>
-                  
-                  {/*<Grid item xs={12}><Typography variant="h6">&nbsp;</Typography></Grid>*/}
-                </Grid>
-                
-                
-                    
-                
+                  </div>
               </div>
             </div>
-          </div>
-          <div className={classNames(classes.layout, classes.cardGrid)}>
-            {/* End hero unit */}
-            
-            <Grid container spacing={16}  className={classes.imageContainer}>
-
-              {this.state.imageObjects.map((item, index)=>
-                <DynamicPreloadedImage 
-                  aspect={item.width/item.height} 
-                  show={this.state.sliderValue - 1 === index} 
-                  src={item.src} 
-                  key={item.src} 
-                  alt={`frame ${index}`}/>)}
+            <div className={classNames(classes.layout, classes.cardGrid)}>
               
-            </Grid>
-          </div>
+              <Card className={classes.card}>
+                  <CardContent>
+                    <div  className={classes.imageContainer}>
+                        
+                      {this.state.imageObjects.map((item, index)=>
+                      <DynamicPreloadedImage 
+                      aspect={item.width/item.height} 
+                      show={this.state.sliderValue - 1 === index} 
+                      src={item.src} 
+                      key={item.src} 
+                      alt={`frame ${index}`}/>)}
+                      
+                      {this.state.imageObjects.length > 0 && 
+                        <Floating 
+                          offset={16}
+                          absolute
+                          children={
+                          <Grid container   justify="space-between" className={classes.camSelectContainer}>
+                              <Grid item xs={2}>
+                                <Paper className={classes.camSelectContainerNested}>
+                                    <FormControl className={classNames(classes.mainField, classes.formControl)} >
+                                      <InputLabel shrink >
+                                          Camera
+                                      </InputLabel>
+                                      <Select
+                                      value={this.state.cam || ' '}
+                                      onChange={this.handleCamChange}
+                                      input={<Input name="camera"/>}
+                                      displayEmpty
+                                      name="camera"
+                                      className={classes.selectEmpty}
+                                      >
+                                      {this.state.roverCams[this.state.roverCamIndex].map((item, index) => 
+                                      (item.totalPhotos > 0 || this.state.cam === item.abbrev) && 
+                                      <MenuItem 
+                                          key={index} 
+                                          value={item.abbrev}>
+                                          {item.full}{` (${item.totalPhotos})`} 
+                                      </MenuItem>
+                                      )}
+                                      </Select>
+                                      <FormHelperText>
+                                          {`rover: ${roverNames[this.state.rover]}`}
+                                      </FormHelperText>
+                                    </FormControl>
+                                </Paper>
+                              </Grid>
+                          </Grid>
+                        }></Floating>
+                      /*end conditional */}
+                    </div>
+                  </CardContent>
+              </Card>
+            </div>
         </main>
-        </React.Fragment>
+      </React.Fragment>
       
     );
   }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
-import { withStyles } from '@material-ui/core/styles';
+import windowSize from 'react-window-size';
 
 const stationaryStyle = {
    
@@ -19,12 +18,6 @@ const floatingStyle = {
     ...stationaryStyle
 };
 
-const styles = (theme) => ({
-    sliderContainer: {
-        padding: '0 20px 0 20px'
-    }
-});
-
 class Floating extends Component {
     constructor(props){
         super(props);
@@ -41,7 +34,7 @@ class Floating extends Component {
     }
 
     handleScroll = (ev) =>{
-        
+        console.log('window width: ' + this.props.windowWidth);
         this.setState({isFloating: !this.isScrolledIntoView(this.myRef.current)});
     };
 
@@ -55,6 +48,11 @@ class Floating extends Component {
 
   render() {
     const { classes } = this.props;
+
+    // ugly way of determining whether to stack
+    // if adding any more instances, then should make this into its own prop
+    const shouldStackElement = this.props.offset < -30;
+    const posOffset = shouldStackElement ? this.props.offset -64 : this.props.offset; 
     return (
         <React.Fragment>
             <Grid container  >
@@ -65,7 +63,7 @@ class Floating extends Component {
                 </div>
                 </Grid>
             </Grid>
-            <span ref={this.myRef} style={{height: '56px',  ...(this.props.absolute ? {position: 'absolute', top: 0, left: 0,}:{})}}/>
+            <span ref={this.myRef} style={{height: '56px', ...(this.props.absolute ? {position: 'absolute', top: posOffset, left: posOffset, }:{})}}/>
        
         </React.Fragment>
     )
@@ -74,4 +72,4 @@ class Floating extends Component {
 
 Floating.defaultProps = {offset: 0, absolute: false};
 
-export default Floating;
+export default windowSize(Floating);

@@ -10,6 +10,7 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
+    "react-window-size": "^1.2.2",
     "whatwg-fetch": "^3.0.0"
   },
   "scripts": {

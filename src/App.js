@@ -17,12 +17,12 @@ import TextField from '@material-ui/core/TextField';
 import Slider from '@material-ui/lab/Slider';
 import DynamicPreloadedImage from './DynamicPreloadedImage'
 import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import Paper from '@material-ui/core/Paper';
 import 'whatwg-fetch';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Floating from './Floating';
+import windowSize from 'react-window-size';
 
 
 //manifest objects to store useful information about each rover
@@ -84,8 +84,8 @@ for(let i in rovers){
 }
 
 const styles = (theme) => {
-  console.log('theme.palette.primary.dark: ' + theme.palette.primary.main);
-  console.log('theme.palette.primary.dark: ' + theme.palette.primary.dark);
+  //console.log('theme.palette.primary.dark: ' + theme.palette.primary.main);
+  //console.log('theme.palette.primary.dark: ' + theme.palette.primary.dark);
   const rgb = hexToRgb(theme.palette.primary.main);
   
   
@@ -357,20 +357,24 @@ class App extends React.Component{
       for(let i in photos)
         cameraPhotoCountMap[photos[i].camera.name]++; 
 
-        return {roverCams: prevState.roverCams.map((item, index) => 
+        return {
+          roverCams: prevState.roverCams.map((item, index) => 
           prevState.rover === index ? 
           item.map((_item) => {
             // Spread operator only seems to work on object literals, making this variable necessary:
             let tempCam = {abbrev: _item.abbrev, full: _item.full, totalPhotos: 0};
             return({...tempCam, totalPhotos: cameraPhotoCountMap[_item.abbrev.toUpperCase()]})
           }) 
-          : item)}
+          : item)
+        }
     });
   }
 
   render(){
     const { classes } = this.props;
-    //console.log('props: ' + JSON.stringify(this.props));
+    const camGridSize = 4;
+    const camSelectRightBounds = Math.min(this.props.windowWidth, 600) * (camGridSize/12) + 50;
+    const shouldStackFloatingElements = camSelectRightBounds > (this.props.windowWidth - 600) / 2;
     return (
      
       <React.Fragment>
@@ -441,30 +445,27 @@ class App extends React.Component{
                           </Button>
                           <FormHelperText>{this.state.photosAvailable} photos available </FormHelperText>
                         </Grid>
-                        <Floating children={[
-                        <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
-                          <Grid item xs={10}>
-                              <Slider
-                                className={classes.slider}
-                                value={this.state.sliderValue}
-                                min={1}
-                                max={this.state.totalPhotos}
-                                step={1}
-                                onChange={this.handleSliderChange}
-                                />
+                        <Floating 
+                          offset={6}
+                          children={
+                          <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
+                            <Grid item xs={10}>
+                                <Slider
+                                  className={classes.slider}
+                                  value={this.state.sliderValue}
+                                  min={1}
+                                  max={this.state.totalPhotos}
+                                  step={1}
+                                  onChange={this.handleSliderChange}
+                                  />
+                            </Grid>
+                            <Grid item xs={2} align="center">
+                                <Typography variant="h6" className={classes.floatingDisplay} >
+                                  {this.state.sliderValue}
+                                </Typography>
+                            </Grid>
                           </Grid>
-                          <Grid item xs={2} align="center">
-                              <Typography variant="h6" className={classes.floatingDisplay} >
-                                {this.state.sliderValue}
-                              </Typography>
-                          </Grid>
-                        </Grid>
-                        ]}/>
-                        {/*
-                        <Grid item xs={12}>
-                          <Typography variant="h6">&nbsp;</Typography>
-                        </Grid>
-                        */}
+                        }/>
                     </Grid>
                   </div>
               </div>
@@ -485,11 +486,11 @@ class App extends React.Component{
                       
                       {this.state.photos.length > 0 && 
                         <Floating 
-                          offset={10}
+                          offset={shouldStackFloatingElements ? -40 : 16}
                           absolute
                           children={
                           <Grid container   justify="space-between" className={classes.camSelectContainer}>
-                              <Grid item xs={4}>
+                              <Grid item xs={camGridSize}>
                                 <Paper className={classes.camSelectContainerNested}>
                                     <FormControl className={classNames(classes.mainField, classes.formControl)} >
                                       <InputLabel  shrink >
@@ -536,4 +537,4 @@ App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(App);
+export default windowSize(withStyles(styles)(App));

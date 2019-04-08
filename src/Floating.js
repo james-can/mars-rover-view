@@ -14,7 +14,7 @@ const stationaryStyle = {
 
 const floatingStyle = {
     bottom: 'auto',
-    top: 20,
+    
     position: 'fixed',
     ...stationaryStyle
 };
@@ -37,7 +37,7 @@ class Floating extends Component {
 
     isScrolledIntoView = (el) => {
         const rect = el.getBoundingClientRect();
-        return (rect.top >= this.props.offset) && (rect.bottom <= window.innerHeight - this.props.offset);
+        return (rect.top >= this.props.offset) ;
     }
 
     handleScroll = (ev) =>{
@@ -60,7 +60,7 @@ class Floating extends Component {
             <Grid container  >
                 <Grid item xs={12}>
                 <span style={{}}></span>
-                <div  style={this.state.isFloating ? floatingStyle : stationaryStyle} >
+                <div  style={this.state.isFloating ? {...floatingStyle, top: 20 - this.props.offset} : stationaryStyle} >
                 {this.props.children}
                 </div>
                 </Grid>

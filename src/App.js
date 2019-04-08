@@ -94,13 +94,13 @@ const styles = (theme) => {
       padding: theme.spacing.unit
       
     },
-    sliderDisplay:{
+    floatingDisplay:{
       color: theme.palette.primary.main,
       
     },
 
     camSelectContainer:{
-      position: 'absolute',top: 0,left: 0,
+      position: 'absolute',top: 10,left: 10,
       
       maxWidth: '600px'
     },
@@ -117,8 +117,8 @@ const styles = (theme) => {
     },
     
     camSelectContainerNested:{
-      backgroundColor: `rgba(204,204,204, 1)`,
-      padding: '0 5px 0 5px'
+      backgroundColor: `rgba(66,66,66, .9)`,
+     
     },
 
     imageContainer:{
@@ -245,6 +245,7 @@ class App extends React.Component{
   handleLoadClick = (ev) => {
     
     const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}`;
+    console.log('fetchUrl: ' + fetchUrl)
     const self = this;
     fetch(fetchUrl)
     .then(function(response) {
@@ -453,7 +454,7 @@ class App extends React.Component{
                                 />
                           </Grid>
                           <Grid item xs={2} align="center">
-                              <Typography variant="h6" className={classes.sliderDisplay} >
+                              <Typography variant="h6" className={classes.floatingDisplay} >
                                 {this.state.sliderValue}
                               </Typography>
                           </Grid>
@@ -482,16 +483,16 @@ class App extends React.Component{
                       key={item.src} 
                       alt={`frame ${index}`}/>)}
                       
-                      {this.state.imageObjects.length > 0 && 
+                      {this.state.photos.length > 0 && 
                         <Floating 
-                          offset={16}
+                          offset={10}
                           absolute
                           children={
                           <Grid container   justify="space-between" className={classes.camSelectContainer}>
-                              <Grid item xs={2}>
+                              <Grid item xs={4}>
                                 <Paper className={classes.camSelectContainerNested}>
                                     <FormControl className={classNames(classes.mainField, classes.formControl)} >
-                                      <InputLabel shrink >
+                                      <InputLabel  shrink >
                                           Camera
                                       </InputLabel>
                                       <Select
@@ -500,7 +501,7 @@ class App extends React.Component{
                                       input={<Input name="camera"/>}
                                       displayEmpty
                                       name="camera"
-                                      className={classes.selectEmpty}
+                                      className={classNames(classes.selectEmpty)}
                                       >
                                       {this.state.roverCams[this.state.roverCamIndex].map((item, index) => 
                                       (item.totalPhotos > 0 || this.state.cam === item.abbrev) && 

@@ -83,6 +83,11 @@ for(let i in rovers){
   initializeManifest(i);
 }
 
+const camSelectContainerStyle = {
+  position: 'absolute',top: 10,left: 10,
+  maxWidth: '600px'
+};
+
 const styles = (theme) => {
   //console.log('theme.palette.primary.dark: ' + theme.palette.primary.main);
   //console.log('theme.palette.primary.dark: ' + theme.palette.primary.dark);
@@ -91,22 +96,12 @@ const styles = (theme) => {
   
   return {
     slider:{
-      padding: theme.spacing.unit
-      
+      padding: theme.spacing.unit,
     },
     floatingDisplay:{
       color: theme.palette.primary.main,
       
     },
-
-    camSelectContainer:{
-      position: 'absolute',top: 10,left: 10,
-      
-      maxWidth: '600px'
-    },
-
-    
-
     sliderContainer:{
       
       padding: '0 16px'
@@ -372,7 +367,7 @@ class App extends React.Component{
 
   render(){
     const { classes } = this.props;
-    const camGridSize = 4;
+    const camGridSize = 3;
     const camSelectRightBounds = Math.min(this.props.windowWidth, 600) * (camGridSize/12) + 50;
     const shouldStackFloatingElements = camSelectRightBounds > (this.props.windowWidth - 600) / 2;
     return (
@@ -447,7 +442,8 @@ class App extends React.Component{
                         </Grid>
                         <Floating 
                           offset={6}
-                          children={
+                          zIndex={2}
+                          >
                           <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
                             <Grid item xs={10}>
                                 <Slider
@@ -465,7 +461,7 @@ class App extends React.Component{
                                 </Typography>
                             </Grid>
                           </Grid>
-                        }/>
+                        </Floating>
                     </Grid>
                   </div>
               </div>
@@ -487,9 +483,9 @@ class App extends React.Component{
                       {this.state.photos.length > 0 && 
                         <Floating 
                           offset={shouldStackFloatingElements ? -40 : 16}
-                          absolute
-                          children={
-                          <Grid container   justify="space-between" className={classes.camSelectContainer}>
+                          absolute>
+                          
+                          <Grid container   justify="space-between" style={{...camSelectContainerStyle, width: this.props.windowWidth - 90}}>
                               <Grid item xs={camGridSize}>
                                 <Paper className={classes.camSelectContainerNested}>
                                     <FormControl className={classNames(classes.mainField, classes.formControl)} >
@@ -520,7 +516,7 @@ class App extends React.Component{
                                 </Paper>
                               </Grid>
                           </Grid>
-                        }></Floating>
+                        </Floating>
                       /*end conditional */}
                     </div>
                   </CardContent>

@@ -7,7 +7,7 @@ const stationaryStyle = {
     width: '100%',
     maxWidth: '600px',
     borderRadius: '9999px', 
-    zIndex: 1,
+    
     backgroundColor: '#ccc'
 };
 
@@ -30,12 +30,15 @@ class Floating extends Component {
 
     isScrolledIntoView = (el) => {
         const rect = el.getBoundingClientRect();
-        return (rect.top >= this.props.offset) ;
+        return (rect.top >= this.props.offset);
     }
 
     handleScroll = (ev) =>{
         console.log('window width: ' + this.props.windowWidth);
-        this.setState({isFloating: !this.isScrolledIntoView(this.myRef.current)});
+        
+        const isFloating = !this.isScrolledIntoView(this.myRef.current);
+        
+        this.setState({isFloating: isFloating});
     };
 
     componentDidMount(){
@@ -47,8 +50,6 @@ class Floating extends Component {
 
 
   render() {
-    const { classes } = this.props;
-
     // ugly way of determining whether to stack
     // if adding any more instances, then should make this into its own prop
     const shouldStackElement = this.props.offset < -30;
@@ -58,7 +59,7 @@ class Floating extends Component {
             <Grid container  >
                 <Grid item xs={12}>
                 <span style={{}}></span>
-                <div  style={this.state.isFloating ? {...floatingStyle, top: 20 - this.props.offset} : stationaryStyle} >
+                <div  style={{zIndex: this.props.zIndex ,...(this.state.isFloating ? {...floatingStyle, top: 20 - this.props.offset} : stationaryStyle)}} >
                 {this.props.children}
                 </div>
                 </Grid>
@@ -70,6 +71,6 @@ class Floating extends Component {
   }
 }
 
-Floating.defaultProps = {offset: 0, absolute: false};
+Floating.defaultProps = {offset: 0, absolute: false, zIndex: 1};
 
 export default windowSize(Floating);

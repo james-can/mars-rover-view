@@ -510,7 +510,7 @@ class App extends React.Component{
                                       )}
                                       </Select>
                                       <FormHelperText>
-                                          {`rover: ${roverNames[this.state.rover]}`}
+                                          {`rover: ${roverNames[this.state.roverCamIndex]}`}
                                       </FormHelperText>
                                     </FormControl>
                                 </Paper>

@@ -34,8 +34,6 @@ class Floating extends Component {
     }
 
     handleScroll = (ev) =>{
-        console.log('window width: ' + this.props.windowWidth);
-        
         const isFloating = !this.isScrolledIntoView(this.myRef.current);
         
         this.setState({isFloating: isFloating});

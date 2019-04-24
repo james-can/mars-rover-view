@@ -23,13 +23,13 @@ import Floating from './Floating';
 import windowSize from 'react-window-size';
 import MenuItemChild from './MenuItemChild';
 import IconButton from '@material-ui/core/IconButton';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+import StarBorderIcon from '@material-ui/icons/AddPhotoAlternateOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
 //manifest objects to store useful information about each rover
 const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
 const hexToDec = (hex) => {
-  console.log('hex: ' + hex);
+  
   let dec = 0;
   const map = {'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15};
   for(let i = 0; i < hex.length; i++ ){
@@ -40,7 +40,7 @@ const hexToDec = (hex) => {
 const hexToRgb = (hex) => [hexToDec(`${hex[1]}${hex[2]}`), hexToDec(`${hex[3]}${hex[4]}`), hexToDec(`${hex[5]}${hex[6]}`)];
 
 const setManifest = (json) => {
-  console.log('json: ' + json);
+  
   var roverName = json.photo_manifest.name.toLowerCase();
   rovers[roverName] = json.photo_manifest;
 
@@ -63,18 +63,12 @@ const setManifest = (json) => {
 const initializeManifest = (index) =>{
   
   let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
-  console.log('fetchurl: ' + fetchurl);
+  
   fetch(fetchurl)
   .then((response) => {
     return response.json()
   }).then(setManifest).catch((ex) => {
     console.log('parsing failed', ex);
-    console.log('typeof ex: ' + typeof ex);
-
-    if(typeof ex == 'object'){
-      console.log('ex keys: ' + Object.keys(ex));
-    }
-
     initializeManifest(index);
   });
 
@@ -88,8 +82,7 @@ const camSelectContainerStyle = {
 };
 
 const styles = (theme) => {
-  //console.log('theme.palette.primary.dark: ' + theme.palette.primary.main);
-  //console.log('theme.palette.primary.dark: ' + theme.palette.primary.dark);
+
   const rgb = hexToRgb(theme.palette.primary.main);
   
   
@@ -237,7 +230,6 @@ class AppHome extends React.Component{
   handleLoadClick = (ev) => {
     
     const fetchUrl = `https://shielded-woodland-10835.herokuapp.com/${roverNames[this.state.rover]}/${this.state.sol}`;
-    console.log('fetchUrl: ' + fetchUrl)
     const self = this;
     fetch(fetchUrl)
     .then(function(response) {
@@ -373,9 +365,11 @@ class AppHome extends React.Component{
     if(!this.props.loggedIn)
      return;
 
+
+
     const { imageObjects, sliderValue, photos } = this.state;
 
-    fetch('http://localhost:3001/gallery-saves', {
+    fetch('https://shielded-woodland-10835.herokuapp.com/gallery-saves', {
       method: 'POST',
       body: JSON.stringify({
         photo: JSON.stringify(photos[imageObjects[sliderValue - 1].originalIndex])
@@ -388,7 +382,7 @@ class AppHome extends React.Component{
     .then((res) => {
       if(!res.ok)
         throw new Error('HTTP error, status = ' + res.status);
-
+      this.props.openSnackBar('Added to gallery');
       return res.json();
     })
     .then((res) => console.log(res))

@@ -67,7 +67,8 @@ class SignIn extends React.Component {
   signal = this.controller.signal;
 
   handleSubmit = (ev) => {
-    ev.preventDefault()
+    ev.preventDefault();
+    console.log(ev);
     const validEmail = this.validateEmail(this.state.email);
     let emailErrMsg = validEmail ? '' : 'Please enter a valid email';
     this.setState(() => {
@@ -81,7 +82,7 @@ class SignIn extends React.Component {
     if((!validEmail && this.state.emailErrorText !== EMAIL_EXISTS_MSG) || this.state.hasPasswordError)
       return;
 
-    fetch('http://localhost:3001/users', {
+    fetch('https://shielded-woodland-10835.herokuapp.com/users', {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
@@ -190,10 +191,10 @@ class SignIn extends React.Component {
               <Input name="password" type="password" id="confirm-password" autoComplete="current-password" value={this.state.confirmPassword} onChange={(ev) => this.handleTextChange('confirmPassword', ev)}/>
               <FormHelperText >{this.state.passwordErrorText}</FormHelperText>
             </FormControl>
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
+            /> */}
             <Button
               
               type="submit"

@@ -45,8 +45,11 @@ const styles = (theme) => {
         email: ''
     }
 
+    controller = new AbortController();
+    signal = this.controller.signal;
+
     toggleDrawer = ( open)  => {
-      console.log('drawer toggled');
+      
       this.setState({
         drawerOpen: open,
       });
@@ -60,9 +63,11 @@ const styles = (theme) => {
       if(!tok)
       return;
 
-      fetch('http://localhost:3001/users/me', {
+      console.log('token exists');
+
+      fetch('https://shielded-woodland-10835.herokuapp.com/users/me', {
         method: 'GET',
-        signal: this.signal,
+        signal : this.signal,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
           'x-auth-token': tok
@@ -87,38 +92,46 @@ const styles = (theme) => {
       .catch(e => console.log('error: ' + e));
     }
 
+    componentWillUnmount(){
+      this.controller.abort();
+    }
+
     goHome = () =>{
-      console.log('going home');
+      
       this.setState(() => ({
         pageToDisplay: 2
       }))
     }
   
-    logOut = (showSnackbar = true) =>{
+    logOut = (show = true) =>{
       console.log('LOGGED OUT');
       sessionStorage.removeItem("rover-view-token");
-      this.setState({
-        loggedIn:false,
-        email: '',
-        snackbarOpen: showSnackbar
+      
+      this.openSnackbar('Signed out', show);
+
+      this.setState(() => {
+
+        return {
+          loggedIn:false,
+          email: '',
+        }
       })
     }
 
     handleMenuNav = (index) =>{
-      console.log('handlemenunav, index: ' + index);
+      
       this.setState((prevState) => {
-        console.log('prevState.loggedIn: ' + prevState.loggedIn);
+        
         let logoutState = {};
         if(index === 0 && prevState.loggedIn){// this means sign out was clicked
+          this.openSnackbar('Signed out');
+          sessionStorage.removeItem('rover-view-token');
           logoutState = {
             loggedIn:false,
             email: '',
-            snackbarOpen: true
           };
         } 
           
-
-        console.log('App:handleMenuNav, loggedIn: ' + !(index === 0 && prevState.loggedIn));
         return{
           ...logoutState,
           pageToDisplay: index
@@ -135,12 +148,23 @@ const styles = (theme) => {
 
     login = (email, token, redirect = 2) =>{
       sessionStorage.setItem("rover-view-token", token);
-      this.setState(() => {
+      this.openSnackbar(`Signed in as ${email}`);
+      this.setState((prevState) => {
         return {
           loggedIn : true,
           pageToDisplay : redirect,
           email,
-          snackbarOpen: true
+          
+        }
+      })
+    }
+
+    openSnackbar = (msg, open = true) =>{
+      
+      this.setState(() => {
+        return {
+          snackBarMsg: msg,
+          snackbarOpen: open
         }
       })
     }
@@ -149,7 +173,7 @@ const styles = (theme) => {
         <SignIn handleMenuNav={this.handleMenuNav} login={this.login}/>,
         /*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/
         this.state.loggedIn ? <Album/> : <SignIn referrer={1} handleMenuNav={this.handleMenuNav} login={this.login}/>,
-        <AppHome loggedIn={this.state.loggedIn}/>,
+        <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>,
         <CreateAccount login={this.login}/>
     ];
 
@@ -182,7 +206,7 @@ const styles = (theme) => {
                   ContentProps={{
                     'aria-describedby': 'message-id',
                   }}
-                  message={<span id="message-id">{this.state.loggedIn ? `Signed in as ${this.state.email}` : 'Signed out'}</span>}
+                  message={<span id="message-id">{this.state.snackBarMsg}</span>}
                   action={[
                     
                     <IconButton
@@ -196,6 +220,7 @@ const styles = (theme) => {
                     </IconButton>,
                   ]}
                 />
+                
             </AppBar>
             
             {this.getPageToDisplay()[this.state.pageToDisplay]}

@@ -15,6 +15,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { resolveSoa } from 'dns';
 const styles = theme => ({
   main: {
     width: 'auto',
@@ -82,7 +83,7 @@ class SignIn extends React.Component {
       return;
 
 
-    fetch('http://localhost:3001/auth', {
+    fetch('https://shielded-woodland-10835.herokuapp.com/auth', {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
@@ -96,7 +97,8 @@ class SignIn extends React.Component {
     .then((res) => {
       if(!res.ok){
         console.log('error with new account request');
-        this.setState({hasLoginError: true})
+        this.setState({hasLoginError: true});
+        throw new Error('Failed to authenticate, status=' + res.status);
       }
         
 
@@ -113,6 +115,7 @@ class SignIn extends React.Component {
 
   handleTextChange(field, ev){
     ev.persist();
+    
     this.setState(() => ({
       [field] : ev.target.value
     }))
@@ -147,7 +150,7 @@ class SignIn extends React.Component {
               label="Remember me"
             />
             <Link
-              component="button"
+              
               variant="body2"
               onClick={() => {
                 this.props.handleMenuNav(3)

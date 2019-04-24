@@ -38,13 +38,6 @@ class TemporaryDrawer extends React.Component {
 
   
 
-  handleButtonChange = (index) => {
-    console.log('index: ' + index);
-  };
-
-  goHome = () =>{
-    console.log('go home');
-  };
 
   render() {
     const { classes } = this.props;

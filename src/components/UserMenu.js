@@ -55,7 +55,7 @@ class UserMenu extends Component {
                 
                 <MenuItem onClick={() => this.props.logOut()}>
                     <MenuItemChild>
-                        <RouterLink style={{textDecoration: 'none', color: 'inherit'}} to="/sign-in">Sign Out</RouterLink>
+                        <RouterLink style={{textDecoration: 'none', color: 'inherit'}} to="/mars-rover-view/sign-in">Sign Out</RouterLink>
                     </MenuItemChild>
                 </MenuItem>
                 

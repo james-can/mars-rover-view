@@ -223,15 +223,15 @@ const styles = (theme) => {
             </AppBar>
             
                 <Switch>
-                <Route exact path="/" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
-                <Route exact path="/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
+                <Route exact path="/mars-rover-view" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
+                <Route exact path="/mars-rover-view/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
                 
                 {/*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/}
                 
-                <Route path='/my-gallery' render={() => (
+                <Route path='/mars-rover-view/my-gallery' render={() => (
                   loggedIn ?
                   <Album/>:
-                  <Redirect to="/sign-in"/>
+                  <Redirect to="/mars-rover-view/sign-in"/>
                 )}/>
                 </Switch>
                 

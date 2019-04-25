@@ -15,7 +15,7 @@ import AppHome from './components/AppHome';
 import UserMenu from './components/UserMenu';
 import Grid from '@material-ui/core/Grid';
 
-
+import { BrowserRouter, Route, IndexRoute, Link, Redirect, Switch } from 'react-router-dom';
 
 const styles = (theme) => {
 
@@ -42,7 +42,8 @@ const styles = (theme) => {
         drawerOpen: false,
         loggedIn: false,
         snackbarOpen: false,
-        email: ''
+        email: '',
+        menuIndexClicked: 0
     }
 
     controller = new AbortController();
@@ -114,6 +115,7 @@ const styles = (theme) => {
         return {
           loggedIn:false,
           email: '',
+          menuIndexClicked: 0
         }
       })
     }
@@ -129,12 +131,13 @@ const styles = (theme) => {
           logoutState = {
             loggedIn:false,
             email: '',
+            
           };
         } 
           
         return{
           ...logoutState,
-          pageToDisplay: index
+          menuIndexClicked: index // 0: sign in/out 1: gallery, 2: home
         }})
     }
 
@@ -146,13 +149,12 @@ const styles = (theme) => {
       this.setState({ snackbarOpen: false });
     };
 
-    login = (email, token, redirect = 2) =>{
+    login = (email, token) =>{
       sessionStorage.setItem("rover-view-token", token);
       this.openSnackbar(`Signed in as ${email}`);
       this.setState((prevState) => {
         return {
           loggedIn : true,
-          pageToDisplay : redirect,
           email,
           
         }
@@ -169,18 +171,15 @@ const styles = (theme) => {
       })
     }
 
-    getPageToDisplay = () => [
-        <SignIn handleMenuNav={this.handleMenuNav} login={this.login}/>,
-        /*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/
-        this.state.loggedIn ? <Album/> : <SignIn referrer={1} handleMenuNav={this.handleMenuNav} login={this.login}/>,
-        <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>,
-        <CreateAccount login={this.login}/>
-    ];
+    
 
     render() {
       const { classes } = this.props;
+      const { loggedIn } = this.state;
       return (
+        <BrowserRouter >
         <React.Fragment>
+          
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
                 {/*<Typography  variant="h6" color="inherit" noWrap>
@@ -223,11 +222,46 @@ const styles = (theme) => {
                 
             </AppBar>
             
-            {this.getPageToDisplay()[this.state.pageToDisplay]}
+                <Switch>
+                <Route exact path="/" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
+                <Route exact path="/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
+                
+                {/*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/}
+                
+                <Route path='/my-gallery' render={() => (
+                  loggedIn ?
+                  <Album/>:
+                  <Redirect to="/sign-in"/>
+                )}/>
+                </Switch>
+                
+            {/* <CreateAccount login={this.login}/> */}
+            
+            
         </React.Fragment>
+        </BrowserRouter>
       )
     }
   }
   
+  class ProtectedRoute extends Component {
+    render() {
+      const { component: Component, loggedIn, ...props } = this.props
+      
+      return (
+        <Route 
+          {...props} 
+          render={props => {
+            
+            return(
+            loggedIn ?
+              <Component {...props} /> :
+              <Redirect to='/sign-in' />
+          )}} 
+        />
+      )
+    }
+  }
+
   export default withStyles(styles)(App);
   

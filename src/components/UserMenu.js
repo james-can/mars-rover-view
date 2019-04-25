@@ -5,6 +5,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuItemChild from './MenuItemChild';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Link as RouterLink } from 'react-router-dom';
 class UserMenu extends Component {
     state = {
         anchorEl: null
@@ -26,6 +27,7 @@ class UserMenu extends Component {
         return (
             <div>
             <Tooltip title={this.props.email}>
+            
             <IconButton
                 aria-owns={open ? "menu-appbar" : undefined}
                 aria-haspopup="true"
@@ -34,6 +36,7 @@ class UserMenu extends Component {
             >
                 <AccountCircle />
             </IconButton>
+            
             </Tooltip>
             <Menu
                 id="menu-appbar"
@@ -49,7 +52,13 @@ class UserMenu extends Component {
                 open={open}
                 onClose={this.handleClose}
             >
-                <MenuItem onClick={() => this.props.logOut()}><MenuItemChild>Sign Out</MenuItemChild></MenuItem>
+                
+                <MenuItem onClick={() => this.props.logOut()}>
+                    <MenuItemChild>
+                        <RouterLink style={{textDecoration: 'none', color: 'inherit'}} to="/sign-in">Sign Out</RouterLink>
+                    </MenuItemChild>
+                </MenuItem>
+                
             </Menu>
             </div>
         )

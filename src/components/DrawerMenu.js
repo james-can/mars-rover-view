@@ -11,6 +11,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import AccountBox from '@material-ui/icons/AccountBox';
 import GalleryIcon from '@material-ui/icons/PhotoLibrary';
 
+import { Router, Route, IndexRoute, NavLink as Link } from 'react-router-dom';
 
 const styles = {
   list: {
@@ -19,6 +20,10 @@ const styles = {
   fullList: {
     width: 'auto',
   },
+  navLink:{
+    textDecoration: 'none',
+    color: 'inherit'
+  }
 };
 
 class TemporaryDrawer extends React.Component {
@@ -45,22 +50,24 @@ class TemporaryDrawer extends React.Component {
     const sideList = (
       <div className={classes.list}>
         <List>
-          
-            <ListItem button onClick={() => this.props.goHome()}>
+          <Link activeStyle={styles.navLink} to="/">
+            <ListItem button /* onClick={() => this.props.goHome()} */>
               <ListItemIcon><HomeIcon/></ListItemIcon>
               <ListItemText primary='Rover View' />
             </ListItem>
-          
+          </Link>
         </List>
         <Divider /> 
         <List>
           {[this.props.loggedIn ? 'Sign Out': 'Sign in', 'My Gallery'].map((text, index) => (
-            <ListItem button onClick={() => this.props.handleMenuNav(index)} key={text}>
+            <Link activeStyle={styles.navLink} key={text} to={index % 2 === 0 ?'/sign-in' : '/my-gallery'}> 
+            <ListItem button onClick={() => this.props.handleMenuNav(index)} >
               
               <ListItemIcon>{index % 2 === 0 ? <AccountBox /> : <GalleryIcon />}</ListItemIcon> 
               
               <ListItemText primary={text} />
             </ListItem>
+            </Link>
           ))}
         </List>
       </div>

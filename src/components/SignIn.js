@@ -15,7 +15,8 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { resolveSoa } from 'dns';
+import Redirect from 'react-router-dom/Redirect';
+
 const styles = theme => ({
   main: {
     width: 'auto',
@@ -57,7 +58,11 @@ class SignIn extends React.Component {
   state = {
     email: '',
     password: '',
-    hasLoginError: false
+    hasLoginError: false,
+    redirect: {
+      active: false,
+      route: '/'
+    }
   }
 
   controller = new AbortController();
@@ -65,6 +70,10 @@ class SignIn extends React.Component {
 
   validateEmail = (email) =>{
     return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
+  }
+
+  componentDidMount(){
+    
   }
 
   handleSubmit = (ev) => {
@@ -105,7 +114,16 @@ class SignIn extends React.Component {
       return res.text();
     })
     .then((res) => {
-      this.props.login(this.state.email, res, this.props.referrer);
+      console.log(this.props.match);
+      this.props.login(this.state.email, res);
+      console.log('this.props.referrer: ' + this.props.referrer);
+      this.setState({
+        redirect:
+        {
+          active: true, 
+          // if user was routed here after clicking my gallery, send them to the place they were trying to get to originally
+          route: this.props.referrer === 1 ? '/my-gallery' : '/'} 
+        })
     })
     .catch(e => console.log('error: ' + e)); 
 
@@ -125,6 +143,11 @@ class SignIn extends React.Component {
     
   render(){
     const { classes } = this.props;
+    const { redirect } = this.state;
+    
+    if(redirect.active){
+      return <Redirect to={redirect.route}/>
+    }
     return (
       <main className={classes.main}>
         <CssBaseline />

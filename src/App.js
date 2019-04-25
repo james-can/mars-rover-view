@@ -15,7 +15,7 @@ import AppHome from './components/AppHome';
 import UserMenu from './components/UserMenu';
 import Grid from '@material-ui/core/Grid';
 
-import { BrowserRouter, Route, IndexRoute, Link, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 
 const styles = (theme) => {
 
@@ -225,7 +225,7 @@ const styles = (theme) => {
                 <Switch>
                 <Route exact path="/mars-rover-view" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
                 <Route exact path="/mars-rover-view/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
-                
+                <Route exact path="/mars-rover-view/create-account" render={(props) => <CreateAccount login={this.login}/> }/>
                 {/*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/}
                 
                 <Route path='/mars-rover-view/my-gallery' render={() => (
@@ -235,7 +235,7 @@ const styles = (theme) => {
                 )}/>
                 </Switch>
                 
-            {/* <CreateAccount login={this.login}/> */}
+             
             
             
         </React.Fragment>

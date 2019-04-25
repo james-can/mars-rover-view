@@ -16,6 +16,7 @@ import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Redirect from 'react-router-dom/Redirect';
+import { Link as RouterLink } from 'react-router-dom';
 
 const styles = theme => ({
   main: {
@@ -61,7 +62,7 @@ class SignIn extends React.Component {
     hasLoginError: false,
     redirect: {
       active: false,
-      route: '/'
+      route: '/mars-rover-view/'
     }
   }
 
@@ -122,7 +123,7 @@ class SignIn extends React.Component {
         {
           active: true, 
           // if user was routed here after clicking my gallery, send them to the place they were trying to get to originally
-          route: this.props.referrer === 1 ? '/my-gallery' : '/'} 
+          route: this.props.referrer === 1 ? '/mars-rover-view/my-gallery' : '/mars-rover-view/'} 
         })
     })
     .catch(e => console.log('error: ' + e)); 
@@ -172,6 +173,7 @@ class SignIn extends React.Component {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
+            <RouterLink style={{textDecoration: 'none',color: 'inherit'}} to="/mars-rover-view/create-account">
             <Link
               
               variant="body2"
@@ -180,7 +182,9 @@ class SignIn extends React.Component {
               }}
             >
               Create Account
+              
             </Link>
+            </RouterLink>
             </Grid>
             <FormControl error>
             {this.state.hasLoginError && <FormHelperText >Invalid email or password</FormHelperText>}

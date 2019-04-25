@@ -13,7 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import FormHelperText from '@material-ui/core/FormHelperText';
-
+import Redirect from 'react-router-dom/Redirect';
 const PASSWORD = 'password';
 const CONFIRM_PASSWORD = 'confirmPassword';
 const EMAIL = 'email';
@@ -60,7 +60,8 @@ class SignIn extends React.Component {
     hasPasswordError: false,
     hasEmailError: false,
     passwordErrorText: '',
-    emailErrorText: ''
+    emailErrorText: '',
+    redirect: false
   }
 
   controller = new AbortController();
@@ -109,6 +110,7 @@ class SignIn extends React.Component {
     })
     .then((res) => {
       this.props.login(this.state.email, res);
+      this.setState({redirect: true});
     })
     .catch(e => console.log('error: ' + e));
 
@@ -166,6 +168,9 @@ class SignIn extends React.Component {
     
   render(){
     const { classes } = this.props;
+    if(this.state.redirect){
+      return <Redirect to={'/mars-rover-view'}/>
+    }
     return (
       <main className={classes.main}>
         <CssBaseline />

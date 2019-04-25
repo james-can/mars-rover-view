@@ -11,7 +11,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import AccountBox from '@material-ui/icons/AccountBox';
 import GalleryIcon from '@material-ui/icons/PhotoLibrary';
 
-import { Router, Route, IndexRoute, NavLink as Link } from 'react-router-dom';
+import { NavLink as Link } from 'react-router-dom';
 
 const styles = {
   list: {

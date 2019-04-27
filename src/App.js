@@ -15,7 +15,7 @@ import AppHome from './components/AppHome';
 import UserMenu from './components/UserMenu';
 import Grid from '@material-ui/core/Grid';
 
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
+import { HashRouter, Route, Redirect, Switch } from 'react-router-dom';
 
 const styles = (theme) => {
 
@@ -178,7 +178,7 @@ const styles = (theme) => {
       const { classes } = this.props;
       const { loggedIn } = this.state;
       return (
-        <BrowserRouter baseName={process.env.PUBLIC_URL}>
+        <HashRouter baseName={process.env.PUBLIC_URL}>
         <React.Fragment>
           
             <AppBar position="static" className={classes.appBar}>
@@ -240,7 +240,7 @@ const styles = (theme) => {
             
             
         </React.Fragment>
-        </BrowserRouter>
+        </HashRouter>
       )
     }
   }

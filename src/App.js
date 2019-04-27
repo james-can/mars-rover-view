@@ -58,7 +58,8 @@ const styles = (theme) => {
     };
     
     componentDidMount(){
-      
+      console.log(process.env.PUBLIC_URL);      
+
       const tok = sessionStorage.getItem("rover-view-token");
 
       if(!tok)
@@ -177,7 +178,7 @@ const styles = (theme) => {
       const { classes } = this.props;
       const { loggedIn } = this.state;
       return (
-        <BrowserRouter >
+        <BrowserRouter baseName={process.env.PUBLIC_URL}>
         <React.Fragment>
           
             <AppBar position="static" className={classes.appBar}>
@@ -223,15 +224,15 @@ const styles = (theme) => {
             </AppBar>
             
                 <Switch>
-                <Route exact path="/mars-rover-view" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
-                <Route exact path="/mars-rover-view/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
-                <Route exact path="/mars-rover-view/create-account" render={(props) => <CreateAccount login={this.login}/> }/>
-                {/*referrer of 1 indicates to do automatically navigate to the second element after logging in(album/gallery), default is 2 (home)*/}
+                <Route exact path="/" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
+                <Route exact path="/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
+                <Route exact path="/create-account" render={(props) => <CreateAccount login={this.login}/> }/>
                 
-                <Route path='/mars-rover-view/my-gallery' render={() => (
+                
+                <Route path='/my-gallery' render={() => (
                   loggedIn ?
                   <Album/>:
-                  <Redirect to="/mars-rover-view/sign-in"/>
+                  <Redirect to="/sign-in"/>
                 )}/>
                 </Switch>
                 

@@ -50,7 +50,7 @@ class TemporaryDrawer extends React.Component {
     const sideList = (
       <div className={classes.list}>
         <List>
-          <Link activeStyle={styles.navLink} to="/mars-rover-view">
+          <Link activeStyle={styles.navLink} to="/">
             <ListItem button /* onClick={() => this.props.goHome()} */>
               <ListItemIcon><HomeIcon/></ListItemIcon>
               <ListItemText primary='Rover View' />
@@ -60,7 +60,7 @@ class TemporaryDrawer extends React.Component {
         <Divider /> 
         <List>
           {[this.props.loggedIn ? 'Sign Out': 'Sign in', 'My Gallery'].map((text, index) => (
-            <Link activeStyle={styles.navLink} key={text} to={index % 2 === 0 ?'/mars-rover-view/sign-in' : '/mars-rover-view/my-gallery'}> 
+            <Link activeStyle={styles.navLink} key={text} to={index % 2 === 0 ?'/sign-in' : '/my-gallery'}> 
             <ListItem button onClick={() => this.props.handleMenuNav(index)} >
               
               <ListItemIcon>{index % 2 === 0 ? <AccountBox /> : <GalleryIcon />}</ListItemIcon> 

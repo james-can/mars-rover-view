@@ -62,7 +62,7 @@ class SignIn extends React.Component {
     hasLoginError: false,
     redirect: {
       active: false,
-      route: '/mars-rover-view/'
+      route: '/'
     }
   }
 
@@ -123,7 +123,7 @@ class SignIn extends React.Component {
         {
           active: true, 
           // if user was routed here after clicking my gallery, send them to the place they were trying to get to originally
-          route: this.props.referrer === 1 ? '/mars-rover-view/my-gallery' : '/mars-rover-view/'} 
+          route: this.props.referrer === 1 ? '/my-gallery' : '/'} 
         })
     })
     .catch(e => console.log('error: ' + e)); 
@@ -173,7 +173,7 @@ class SignIn extends React.Component {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <RouterLink style={{textDecoration: 'none',color: 'inherit'}} to="/mars-rover-view/create-account">
+            <RouterLink style={{textDecoration: 'none',color: 'inherit'}} to="/create-account">
             <Link
               
               variant="body2"

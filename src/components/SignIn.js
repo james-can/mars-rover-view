@@ -79,7 +79,7 @@ class SignIn extends React.Component {
 
   handleSubmit = (ev) => {
     ev.preventDefault()
-    const validEmail = this.validateEmail(this.state.email);
+    const validEmail = this.validateEmail(this.state.email.trim());
     let emailErrMsg = validEmail ? '' : 'Please enter a valid email';
     this.setState(() => {
       return {
@@ -97,7 +97,7 @@ class SignIn extends React.Component {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
-        email: this.state.email,
+        email: this.state.email.trim(),
         password: this.state.password
       }),
       headers: {
@@ -168,7 +168,7 @@ class SignIn extends React.Component {
               <InputLabel htmlFor="password">Password</InputLabel>
               <Input name="password" type="password" id="password" autoComplete="current-password" value={this.state.password} onChange={(ev) => this.handleTextChange('password', ev)}/>
             </FormControl>
-            <Grid container justify="space-between">
+            <Grid container justify="space-between" alignItems="center">
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -188,6 +188,7 @@ class SignIn extends React.Component {
             </Grid>
             <FormControl error>
             {this.state.hasLoginError && <FormHelperText >Invalid email or password</FormHelperText>}
+            {this.state.hasEmailError && <FormHelperText >{this.state.emailErrorText}</FormHelperText>}
             </FormControl>
             <FormControl>
             {this.props.referrer === 1 && <FormHelperText filled className={classes.infoMessage} ><InfoIcon fontSize="small"/> &nbsp; You must be logged in to access that page</FormHelperText>}

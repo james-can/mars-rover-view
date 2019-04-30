@@ -59,16 +59,21 @@ class TemporaryDrawer extends React.Component {
         </List>
         <Divider /> 
         <List>
-          {[this.props.loggedIn ? 'Sign Out': 'Sign in', 'My Gallery'].map((text, index) => (
-            <Link activeStyle={styles.navLink} key={text} to={index % 2 === 0 ?'/sign-in' : '/my-gallery'}> 
-            <ListItem button onClick={() => this.props.handleMenuNav(index)} >
-              
-              <ListItemIcon>{index % 2 === 0 ? <AccountBox /> : <GalleryIcon />}</ListItemIcon> 
-              
-              <ListItemText primary={text} />
+          <Link activeStyle={styles.navLink} style={styles.navLink} to="/sign-in">
+            <ListItem button  onClick={() =>  this.props.handleMenuNav(0)} >
+              <ListItemIcon><AccountBox/></ListItemIcon>
+              <ListItemText primary={this.props.loggedIn ? 'Sign Out': 'Sign in'} />
             </ListItem>
-            </Link>
-          ))}
+          </Link>
+          <Link activeStyle={styles.navLink} style={styles.navLink} to="/my-gallery">
+            <ListItem button  onClick={() =>  this.props.handleMenuNav(1)} >
+              <ListItemIcon><GalleryIcon/></ListItemIcon>
+              <ListItemText primary="My Gallery" />
+            </ListItem>
+          </Link>
+          <List>
+          
+        </List>
         </List>
       </div>
     );

@@ -123,7 +123,7 @@ function Album(props) {
           {/* End hero unit */}
           <Grid container spacing={40}>
             {photos.map(photo => (
-              <Grid item key={photo.img_src} sm={6} md={4} lg={3}>
+              <Grid item key={photo.img_src} xs={6} sm={6} md={4} lg={3}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}

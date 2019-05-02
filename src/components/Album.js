@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import Button from '@material-ui/core/Button';
-
+import FullScreenImage from './FullScreenImage';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -74,6 +74,8 @@ function Album(props) {
   const signal = controller.signal;
 
   const [ photos, setPhotos ] = useState([]);
+  const [fullScreenImageIndex, setIndex] = useState(-1);
+  const [toggleFullScreenImage, setImageToggle] = useState(0);
 
   useEffect(() => {
     fetch('https://shielded-woodland-10835.herokuapp.com/gallery-saves', {
@@ -87,14 +89,18 @@ function Album(props) {
     .then((res) => {
       if(!res.ok){
         console.log('error loading gallery');
-        
       }
-      
       return res.json();
     })
     .then((res) => {
       
-      setPhotos(res);
+      setPhotos(res.map((photo) => {
+        let img = new Image();
+        img.src = photo.img_src;
+        return {
+          imageObjectRef: img,
+          ...photo}
+      }));
     })
     .catch(e => console.log('error: ' + e)); 
 
@@ -104,10 +110,15 @@ function Album(props) {
     }
   },[]);
 
+  const handleViewButtonClick = (index) => {
+    console.log('handleviewbuttonclick() called');
+    setIndex(index);
+  }
+
   return (
     <React.Fragment>
-      <CssBaseline />
-      
+      <CssBaseline/>
+      {fullScreenImageIndex !== -1 && <FullScreenImage handleClose={() => setIndex(-1)} photo={photos[fullScreenImageIndex]}/>}
       <main>
         {/* Hero unit */}
         <div className={classes.heroUnit}>
@@ -121,7 +132,7 @@ function Album(props) {
         <div className={classNames(classes.layout, classes.cardGrid)}>
           {/* End hero unit */}
           <Grid container spacing={40}>
-            {photos.map(photo => (
+            {photos.map((photo, index) => (
               <Grid item key={photo.img_src} xs={6} sm={6} md={4} lg={3}>
                 <Card className={classes.card}>
                   <CardMedia
@@ -145,12 +156,14 @@ function Album(props) {
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button size="small" color="primary" onClick={() => handleViewButtonClick(index)}>
                       View
                     </Button>
+                    
                     <Button size="small" color="primary">
                       Remove
                     </Button>
+                    
                   </CardActions>
                 </Card>
               </Grid>

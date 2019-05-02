@@ -1,13 +1,13 @@
 {
   "main.css": "/mars-rover-view/static/css/main.534c550e.chunk.css",
-  "main.js": "/mars-rover-view/static/js/main.c15e0353.chunk.js",
-  "main.js.map": "/mars-rover-view/static/js/main.c15e0353.chunk.js.map",
+  "main.js": "/mars-rover-view/static/js/main.88d763d8.chunk.js",
+  "main.js.map": "/mars-rover-view/static/js/main.88d763d8.chunk.js.map",
   "runtime~main.js": "/mars-rover-view/static/js/runtime~main.9d785713.js",
   "runtime~main.js.map": "/mars-rover-view/static/js/runtime~main.9d785713.js.map",
-  "static/js/2.f3885580.chunk.js": "/mars-rover-view/static/js/2.f3885580.chunk.js",
-  "static/js/2.f3885580.chunk.js.map": "/mars-rover-view/static/js/2.f3885580.chunk.js.map",
+  "static/js/2.c815bcca.chunk.js": "/mars-rover-view/static/js/2.c815bcca.chunk.js",
+  "static/js/2.c815bcca.chunk.js.map": "/mars-rover-view/static/js/2.c815bcca.chunk.js.map",
   "index.html": "/mars-rover-view/index.html",
-  "precache-manifest.c7fcb65ff26f5905aa61c72bc076b79f.js": "/mars-rover-view/precache-manifest.c7fcb65ff26f5905aa61c72bc076b79f.js",
+  "precache-manifest.9b35b8e0c2dbe426f27eb8ea35420616.js": "/mars-rover-view/precache-manifest.9b35b8e0c2dbe426f27eb8ea35420616.js",
   "service-worker.js": "/mars-rover-view/service-worker.js",
   "static/css/main.534c550e.chunk.css.map": "/mars-rover-view/static/css/main.534c550e.chunk.css.map"
 }

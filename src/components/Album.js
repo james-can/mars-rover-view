@@ -63,7 +63,6 @@ const styles = theme => ({
   info:{
     display: 'flex',
     alignItems: 'center',
-    justify: 'space-between'
   }
 });
 

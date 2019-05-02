@@ -69,8 +69,8 @@ class SignIn extends React.Component {
 
   handleSubmit = (ev) => {
     ev.preventDefault();
-    console.log(ev);
-    const validEmail = this.validateEmail(this.state.email);
+   
+    const validEmail = this.validateEmail(this.state.email.trim());
     let emailErrMsg = validEmail ? '' : 'Please enter a valid email';
     this.setState(() => {
       return {
@@ -87,7 +87,7 @@ class SignIn extends React.Component {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
-        email: this.state.email,
+        email: this.state.email.trim(),
         password: this.state.password
       }),
       headers: {

@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-
+import CustomTheme from './CustomTheme';
 import blue from '@material-ui/core/colors/blue';
 
 const someTheme = createMuiTheme({
@@ -18,6 +18,9 @@ const someTheme = createMuiTheme({
             main: '#ab5810',
           },
       },
+      typography:{
+        useNextVariants: true
+      }
 });
 
 ReactDOM.render(<MuiThemeProvider theme={someTheme}><App /></MuiThemeProvider>, document.getElementById('root'));

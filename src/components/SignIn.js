@@ -175,7 +175,7 @@ class SignIn extends React.Component {
             />
             <RouterLink style={{textDecoration: 'none',color: 'inherit'}} to="/create-account">
             <Link
-              
+              component="span"
               variant="body2"
               onClick={() => {
                 this.props.handleMenuNav(3)

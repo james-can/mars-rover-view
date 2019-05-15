@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import Button from '@material-ui/core/Button';
 import FullScreenImage from './FullScreenImage';
 import Card from '@material-ui/core/Card';
@@ -66,6 +70,37 @@ const styles = theme => ({
   }
 });
 
+const AnnoyingDialog = (function (props){
+  const { open, handleClose } = props;
+
+  useEffect(() => {
+    console.log('component renderd')
+  });
+
+  return(  
+    <Dialog
+      open={open}
+      onClose={() => handleClose(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          Are you sure you want to remove this image?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => handleClose(false)} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={() => handleClose(true)} color="primary" autoFocus>
+          Remove
+        </Button>
+      </DialogActions>
+    </Dialog>
+    )
+})
 
 
 function Album(props) {
@@ -73,9 +108,20 @@ function Album(props) {
   const controller = new AbortController();
   const signal = controller.signal;
 
-  const [ photos, setPhotos ] = useState([]);
-  const [fullScreenImageIndex, setIndex] = useState(-1);
-  const [toggleFullScreenImage, setImageToggle] = useState(0);
+  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [state, updateState] = useState({
+    photos: [],
+    fullScreenImageIndex: -1,
+    
+  })
+  
+  const setState = (newState) => {
+    
+    console.log(`key: ${Object.keys(newState)[0]}, value: ${newState[Object.keys(newState)[0]]}`);
+
+    updateState({...state, ...newState})
+  }
 
   useEffect(() => {
     fetch('https://shielded-woodland-10835.herokuapp.com/gallery-saves', {
@@ -94,13 +140,18 @@ function Album(props) {
     })
     .then((res) => {
       
-      setPhotos(res.map((photo) => {
-        let img = new Image();
-        img.src = photo.img_src;
-        return {
-          imageObjectRef: img,
-          ...photo}
-      }));
+      updateState(
+          {
+            ...state,
+            photos: res.map((photo) => {
+            let img = new Image();
+            img.src = photo.img_src;
+            return {
+              imageObjectRef: img,
+              ...photo}
+            })
+          }
+        )
     })
     .catch(e => console.log('error: ' + e)); 
 
@@ -110,15 +161,64 @@ function Album(props) {
     }
   },[]);
 
-  const handleViewButtonClick = (index) => {
+  const handleViewButtonClick = (fullScreenImageIndex) => {
     console.log('handleviewbuttonclick() called');
-    setIndex(index);
+    updateState({
+      ...state, 
+      fullScreenImageIndex
+    });
   }
+
+  const handleClose = (confirmed) =>{
+    setDialogOpen(false);
+    if(confirmed){
+      removeImage(state.removeIndex);
+    }
+  }
+
+  const handleRemoveButtonClick = (index) =>{
+    setState({removeIndex: index});
+    setDialogOpen(true);
+  }
+
+  const removeImage = (removeIndex) => {
+    fetch('https://shielded-woodland-10835.herokuapp.com/gallery-saves', {
+      method: 'DELETE',
+      signal: signal,
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        'x-auth-token': sessionStorage.getItem('rover-view-token')
+      },
+      body: JSON.stringify({ removeIndex })
+    })
+    .then((res) => {
+      if(!res.ok){
+        console.log('error loading gallery');
+      }
+      return res.json();
+    })
+    .then((res) => {
+      
+      const newPhotos = state.photos;
+      newPhotos.splice(removeIndex, 1);
+      updateState({
+        ...state,
+        photos: newPhotos
+      });
+    })
+    .catch(e => console.log('error: ' + e)); 
+
+
+
+    
+  }
+
+  const { photos, fullScreenImageIndex } = state;
 
   return (
     <React.Fragment>
       <CssBaseline/>
-      {fullScreenImageIndex !== -1 && <FullScreenImage handleClose={() => setIndex(-1)} photo={photos[fullScreenImageIndex]}/>}
+      {fullScreenImageIndex !== -1 && <FullScreenImage handleClose={() => updateState({...state, fullScreenImageIndex: -1})} photo={photos[fullScreenImageIndex]}/>}
       <main>
         {/* Hero unit */}
         <div className={classes.heroUnit}>
@@ -160,7 +260,7 @@ function Album(props) {
                       View
                     </Button>
                     
-                    <Button size="small" color="primary">
+                    <Button size="small" color="primary" onClick={() => handleRemoveButtonClick(index)}>
                       Remove
                     </Button>
                     
@@ -169,6 +269,7 @@ function Album(props) {
               </Grid>
             ))}
           </Grid>
+          <AnnoyingDialog open={dialogOpen} handleClose={handleClose}/>
         </div>
       </main>
       {/* Footer */}

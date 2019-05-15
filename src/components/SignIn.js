@@ -97,7 +97,7 @@ class SignIn extends React.Component {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
-        email: this.state.email.trim(),
+        email: this.state.email.toLowerCase().trim(),
         password: this.state.password
       }),
       headers: {
@@ -116,7 +116,7 @@ class SignIn extends React.Component {
     })
     .then((res) => {
       console.log(this.props.match);
-      this.props.login(this.state.email, res);
+      this.props.login(this.state.email.toLowerCase(), res);
       console.log('this.props.referrer: ' + this.props.referrer);
       this.setState({
         redirect:

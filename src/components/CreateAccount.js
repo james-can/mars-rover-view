@@ -87,7 +87,7 @@ class SignIn extends React.Component {
       method: 'POST',
       signal: this.signal,
       body: JSON.stringify({
-        email: this.state.email.trim(),
+        email: this.state.email.toLowerCase().trim(),
         password: this.state.password
       }),
       headers: {
@@ -109,7 +109,7 @@ class SignIn extends React.Component {
       return res.text();
     })
     .then((res) => {
-      this.props.login(this.state.email, res);
+      this.props.login(this.state.email.toLowerCase().trim(), res);
       this.setState({redirect: true});
     })
     .catch(e => console.log('error: ' + e));

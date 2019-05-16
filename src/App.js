@@ -17,6 +17,8 @@ import Grid from '@material-ui/core/Grid';
 
 import { HashRouter, Route, Redirect, Switch } from 'react-router-dom';
 
+
+
 const styles = (theme) => {
 
     return {
@@ -43,7 +45,9 @@ const styles = (theme) => {
         loggedIn: false,
         snackbarOpen: false,
         email: '',
-        menuIndexClicked: 0
+        menuIndexClicked: 0,
+        initialized: false,
+        rovers: {curiosity: {}, opportunity: {}, spirit: {}}
     }
 
     controller = new AbortController();
@@ -56,10 +60,49 @@ const styles = (theme) => {
       });
       
     };
-    
-    componentDidMount(){
-      console.log(process.env.PUBLIC_URL);      
 
+    initializeManifest = (index) =>{
+  
+      let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
+      
+      fetch(fetchurl)
+      .then((response) => {
+        return response.json()
+      }).then(this.setManifest).catch((ex) => {
+        console.log('parsing failed', ex);
+        this.initializeManifest(index);
+      });
+    
+    }
+
+    setManifest = (json) => {
+      var tempRovers = this.state.rovers;
+      var roverName = json.photo_manifest.name.toLowerCase();
+      tempRovers[roverName] = json.photo_manifest;
+    
+      var newPhotoArray = [];
+    
+      const { photos } = json.photo_manifest;
+    
+    
+      // since the sols with 0 photos completely omit the element from the array,
+      // re-map the array with placeholder elements with value of 0 to make  
+      // it easier to navigate
+    
+      for(let i = 0, j = 0; newPhotoArray.length < tempRovers[roverName].max_sol; i++){
+        newPhotoArray.push(photos[j].sol === i ? photos[j++] : {sol: i , earth_date: '', total_photos: 0 , cameras: []});
+      }
+    
+      tempRovers[roverName].photos = newPhotoArray;
+      this.setState({initialized: true, rovers: tempRovers});
+    };
+    componentDidMount(){
+      console.log(process.env.PUBLIC_URL); 
+
+      this.setState({initialized: false});
+      for(let i in this.state.rovers){
+        this.initializeManifest(i);
+      }
       const tok = sessionStorage.getItem("rover-view-token");
 
       if(!tok)
@@ -224,7 +267,7 @@ const styles = (theme) => {
             </AppBar>
             
                 <Switch>
-                <Route exact path="/" render={(props) => <AppHome loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
+                <Route exact path="/" render={(props) => <AppHome rovers={this.state.rovers} initialized={this.state.initialized} loggedIn={this.state.loggedIn} openSnackBar={this.openSnackbar}/>}/>
                 <Route exact path="/sign-in" render={(props) => <SignIn referrer={this.state.menuIndexClicked} handleMenuNav={this.handleMenuNav} login={this.login}/>}/>
                 <Route exact path="/create-account" render={(props) => <CreateAccount login={this.login}/> }/>
                 

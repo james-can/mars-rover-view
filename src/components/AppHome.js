@@ -25,9 +25,10 @@ import MenuItemChild from './MenuItemChild';
 import IconButton from '@material-ui/core/IconButton';
 import StarBorderIcon from '@material-ui/icons/AddPhotoAlternateOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
+import { CircularProgress } from '@material-ui/core';
 
-//manifest objects to store useful information about each rover
-const rovers = {curiosity: {}, opportunity: {}, spirit: {}};
+
+
 const hexToDec = (hex) => {
   
   let dec = 0;
@@ -39,40 +40,7 @@ const hexToDec = (hex) => {
 };
 const hexToRgb = (hex) => [hexToDec(`${hex[1]}${hex[2]}`), hexToDec(`${hex[3]}${hex[4]}`), hexToDec(`${hex[5]}${hex[6]}`)];
 
-const setManifest = (json) => {
-  
-  var roverName = json.photo_manifest.name.toLowerCase();
-  rovers[roverName] = json.photo_manifest;
 
-  var newPhotoArray = [];
-
-  const { photos } = json.photo_manifest;
-
-
-  // since the sols with 0 photos completely omit the element from the array,
-  // re-map the array with placeholder elements with value of 0 to make  
-  // it easier to navigate
-
-  for(let i = 0, j = 0; newPhotoArray.length < rovers[roverName].max_sol; i++){
-    newPhotoArray.push(photos[j].sol === i ? photos[j++] : {sol: i , earth_date: '', total_photos: 0 , cameras: []});
-  }
-
-  rovers[roverName].photos = newPhotoArray;
-};
-
-const initializeManifest = (index) =>{
-  
-  let fetchurl = `https://shielded-woodland-10835.herokuapp.com/manifests/${index}`;
-  
-  fetch(fetchurl)
-  .then((response) => {
-    return response.json()
-  }).then(setManifest).catch((ex) => {
-    console.log('parsing failed', ex);
-    initializeManifest(index);
-  });
-
-}
 
 
 
@@ -220,6 +188,7 @@ class AppHome extends React.Component{
   }
 
   getAvailablePhotos = () =>{
+    const { rovers } = this.props;
     if(rovers.curiosity.photos && rovers.opportunity.photos && rovers.spirit.photos){
       this.setState((prevState, props)=>({
         photosAvailable : rovers[roverNames[prevState.rover]].photos[prevState.sol || 0].total_photos
@@ -327,7 +296,7 @@ class AppHome extends React.Component{
 
   handleSolChange = (ev) =>{
     const { value } = ev.target;
-    if(/^\d*$/.test(value) &&  value >= 0  && value < rovers[roverNames[this.state.rover]].max_sol ){ // make sure the number is a number and is in range
+    if(/^\d*$/.test(value) &&  value >= 0  && value < this.props.rovers[roverNames[this.state.rover]].max_sol ){ // make sure the number is a number and is in range
       this.setState({sol: /^0?$/.test(value) ? 0 : value.replace(/^0*/, '')}); // see if input is 0 or empty string, otherwise trim leading zeros
       this.getAvailablePhotos();
     }
@@ -355,11 +324,7 @@ class AppHome extends React.Component{
     });
   }
 
-  componentDidMount(){
-    for(let i in rovers){
-      initializeManifest(i);
-    }
-  }
+  
 
   handleSaveImageClick = () =>{
     if(!this.props.loggedIn)
@@ -412,76 +377,81 @@ class AppHome extends React.Component{
                   </Typography>
                   <div >
                     <Grid container  justify="space-evenly" alignItems="center" >
-                        <Grid item xs={6} sm={5} >
-                          <Grid container justify="center" >
-                              <FormControl className={classNames(classes.mainField, classes.formControl)} >
-                                <InputLabel shrink >
-                                    Rover
-                                </InputLabel>
-                                <Select
-                                value={this.state.rover}
-                                onChange={this.handleRoverChange}
-                                input={<Input name="rover"/>}
-                                displayEmpty
-                                name="rover"
-                                className={classes.selectEmpty}
-                                >
-                                <MenuItem value={0}><MenuItemChild>Curiosity</MenuItemChild></MenuItem>
-                                <MenuItem value={1}><MenuItemChild>Opportunity</MenuItemChild></MenuItem>
-                                <MenuItem value={2}><MenuItemChild>Spirit</MenuItemChild></MenuItem>
-                                </Select>
-                                <FormHelperText/>
-                              </FormControl>
+                      {this.props.initialized ?  /* Waiting for information to load */
+                        <React.Fragment>
+                          <Grid item xs={6} sm={5} >
+                            <Grid container justify="center" >
+                                <FormControl className={classNames(classes.mainField, classes.formControl)} >
+                                  <InputLabel shrink >
+                                      Rover
+                                  </InputLabel>
+                                  <Select
+                                  value={this.state.rover}
+                                  onChange={this.handleRoverChange}
+                                  input={<Input name="rover"/>}
+                                  displayEmpty
+                                  name="rover"
+                                  className={classes.selectEmpty}
+                                  >
+                                  <MenuItem value={0}><MenuItemChild>Curiosity</MenuItemChild></MenuItem>
+                                  <MenuItem value={1}><MenuItemChild>Opportunity</MenuItemChild></MenuItem>
+                                  <MenuItem value={2}><MenuItemChild>Spirit</MenuItemChild></MenuItem>
+                                  </Select>
+                                  <FormHelperText/>
+                                </FormControl>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                        <Grid item xs={6} sm={1} >
-                        </Grid>
-                        <Grid item xs={6} sm={3} >
-                          <Grid container justify="center">
-                              <FormControl className={classNames(classes.mainField, classes.formControl)}>
-                                <TextField 
-                                className={classes.solSpinner}
-                                label="Sol"
-                                value={(this.state.sol)}
-                                onChange={this.handleSolChange}
-                                type="number"
-                                helperText={`of ${rovers[roverNames[this.state.rover]].max_sol - 1 || 2360}`}
-                                InputLabelProps={{
-                                shrink: true,
-                                }}
-                                />
-                              </FormControl>
+                          <Grid item xs={6} sm={1} >
                           </Grid>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
-                          Load
-                          </Button>
-                          <FormHelperText>{this.state.photosAvailable} photos available </FormHelperText>
-                        </Grid>
-                        <Floating 
-                          offset={6}
-                          zIndex={3}
-                          >
-                          <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
-                            <Grid item xs={10}>
-                                <Slider
-                                  className={classes.slider}
-                                  value={this.state.sliderValue}
-                                  min={1}
-                                  max={this.state.totalPhotos}
-                                  step={1}
-                                  onChange={this.handleSliderChange}
+                          <Grid item xs={6} sm={3} >
+                            <Grid container justify="center">
+                                <FormControl className={classNames(classes.mainField, classes.formControl)}>
+                                  <TextField 
+                                  className={classes.solSpinner}
+                                  label="Sol"
+                                  value={(this.state.sol)}
+                                  onChange={this.handleSolChange}
+                                  type="number"
+                                  helperText={`of ${this.props.rovers[roverNames[this.state.rover]].max_sol - 1 || 2360}`}
+                                  InputLabelProps={{
+                                  shrink: true,
+                                  }}
                                   />
-                            </Grid>
-                            <Grid item xs={2} align="center">
-                                <Typography variant="h6" className={classes.floatingDisplay} >
-                                  {this.state.sliderValue}
-                                </Typography>
+                                </FormControl>
                             </Grid>
                           </Grid>
-                        </Floating>
-                    </Grid>
+                          <Grid item xs={6} sm={3}>
+                            <Button onClick={this.handleLoadClick} variant="contained" color="primary" className={classes.button} >
+                            Load
+                            </Button>
+                            <FormHelperText>{this.state.photosAvailable} photos available </FormHelperText>
+                          </Grid>
+                          <Floating 
+                            offset={6}
+                            zIndex={3}
+                            >
+                            <Grid container justify="space-evenly" alignItems='center' className={classes.sliderContainer}>
+                              <Grid item xs={10}>
+                                  <Slider
+                                    className={classes.slider}
+                                    value={this.state.sliderValue}
+                                    min={1}
+                                    max={this.state.totalPhotos}
+                                    step={1}
+                                    onChange={this.handleSliderChange}
+                                    />
+                              </Grid>
+                              <Grid item xs={2} align="center">
+                                  <Typography variant="h6" className={classes.floatingDisplay} >
+                                    {this.state.sliderValue}
+                                  </Typography>
+                              </Grid>
+                            </Grid>
+                          </Floating>
+                        </React.Fragment>
+                        : <CircularProgress/>}
+                    </Grid> 
+                    
                   </div>
               </div>
             </div>
